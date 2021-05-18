@@ -1119,6 +1119,51 @@ internal class CardInputWidgetTest {
     }
 
     @Test
+    fun setCvcCode_whenCardBrandIsAmericanExpress_doesNotShowCvcIcon() {
+        // This prevents focus from advancing to the postal code.
+        cvcEditText.completionCallback = {}
+
+        cardInputWidget.setCardNumber(AMEX_NO_SPACES)
+        cardInputWidget.cvcEditText.requestFocus()
+
+        assertThat(cardInputWidget.cardBrandView.shouldShowCvc).isTrue()
+
+        cardInputWidget.setCvcCode(CVC_VALUE_AMEX)
+
+        assertThat(cardInputWidget.cardBrandView.shouldShowCvc).isFalse()
+    }
+
+    @Test
+    fun requestCvcFocus_whenFieldHasMaxChars() {
+        // This prevents focus from advancing to the postal code.
+        cvcEditText.completionCallback = {}
+
+        cardInputWidget.setCvcCode(CVC_VALUE_AMEX)
+
+        cardInputWidget.cardNumberEditText.requestFocus()
+        cardInputWidget.setCardNumber(AMEX_NO_SPACES)
+
+        cardInputWidget.cvcEditText.requestFocus()
+        assertThat(cardInputWidget.cardBrandView.shouldShowCvc).isFalse()
+    }
+
+    @Test
+    fun deleteFromMaxCvc_shouldReturnToCvcIcon() {
+        // This prevents focus from advancing to the postal code.
+        cvcEditText.completionCallback = {}
+        cardInputWidget.setCardNumber(AMEX_NO_SPACES)
+
+        cardInputWidget.cvcEditText.requestFocus()
+        cardInputWidget.setCvcCode(CVC_VALUE_AMEX)
+
+        assertThat(cardInputWidget.cardBrandView.shouldShowCvc).isFalse()
+
+        cardInputWidget.setCvcCode(CVC_VALUE_AMEX.substring(0..2))
+
+        assertThat(cardInputWidget.cardBrandView.shouldShowCvc).isTrue()
+    }
+
+    @Test
     fun setEnabledTrue_withPostalCodeDisabled_isTrue() {
         cardInputWidget.postalCodeEnabled = false
         cardInputWidget.isEnabled = true

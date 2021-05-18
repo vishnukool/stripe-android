@@ -782,7 +782,7 @@ class CardInputWidget @JvmOverloads constructor(
         postalCodeEditText.setDeleteEmptyListener(BackUpFieldDeleteListener(cvcEditText))
 
         cvcEditText.internalFocusChangeListeners.add { _, hasFocus ->
-            cardBrandView.shouldShowCvc = hasFocus
+            cardBrandView.shouldShowCvc = hasFocus && !brand.isMaxCvc(cvcEditText.fieldText)
 
             if (hasFocus) {
                 scrollEnd()
@@ -793,6 +793,9 @@ class CardInputWidget @JvmOverloads constructor(
         cvcEditText.setAfterTextChangedListener { text ->
             if (brand.isMaxCvc(text)) {
                 cardInputListener?.onCvcComplete()
+                cardBrandView.shouldShowCvc = false
+            } else {
+                cardBrandView.shouldShowCvc = true
             }
         }
 
