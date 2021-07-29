@@ -47,6 +47,7 @@ import com.stripe.android.paymentsheet.specifications.FormItemSpec
 import com.stripe.android.paymentsheet.specifications.IdentifierSpec
 import com.stripe.android.paymentsheet.specifications.LayoutSpec
 import com.stripe.android.paymentsheet.specifications.ResourceRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -239,6 +240,7 @@ class FormViewModel @Inject internal constructor(
                 .saveForFutureUseValue(saveForFutureUseValue)
                 .saveForFutureUseVisibility(saveForFutureUseVisibility)
                 .merchantName(merchantName)
+                .resourceLoadingContext(Dispatchers.IO)
                 .build()
                 .viewModel as T
         }

@@ -7,6 +7,7 @@ import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Named
 import javax.inject.Singleton
+import kotlin.coroutines.CoroutineContext
 
 @Singleton
 @Component
@@ -33,6 +34,9 @@ internal interface FormViewModelComponent {
 
         @BindsInstance
         fun resources(resources: Resources): Builder
+
+        @BindsInstance
+        fun resourceLoadingContext(workContext: CoroutineContext): Builder
 
         fun build(): FormViewModelComponent
     }

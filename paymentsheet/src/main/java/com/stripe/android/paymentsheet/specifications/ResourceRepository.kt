@@ -12,7 +12,7 @@ internal class ResourceRepository @Inject internal constructor(
     internal val bankRepository: BankRepository,
     internal val addressRepository: AddressFieldElementRepository
 ) {
-    internal fun init() {
+    internal suspend fun init() {
         bankRepository.init()
         addressRepository.init()
     }

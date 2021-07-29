@@ -1,11 +1,13 @@
 package com.stripe.android.paymentsheet.forms
 
 import android.content.Context
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.asLiveData
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.stripe.android.paymentsheet.FormElement.SectionElement
 import com.stripe.android.paymentsheet.address.AddressFieldElementRepository
+import com.stripe.android.paymentsheet.address.TransformAddressToSpec
 import com.stripe.android.paymentsheet.elements.SaveForFutureUseController
 import com.stripe.android.paymentsheet.elements.TextFieldController
 import com.stripe.android.paymentsheet.specifications.BankRepository
@@ -17,15 +19,25 @@ import com.stripe.android.paymentsheet.specifications.SectionFieldSpec.Companion
 import com.stripe.android.paymentsheet.specifications.SectionFieldSpec.Country
 import com.stripe.android.paymentsheet.specifications.SectionFieldSpec.Email
 import com.stripe.android.paymentsheet.specifications.sofort
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowLooper
 
+@ExperimentalCoroutinesApi
 @RunWith(RobolectricTestRunner::class)
 internal class FormViewModelTest {
+    @get:Rule
+    val rule = InstantTaskExecutorRule()
+
+    private val testDispatcher = TestCoroutineDispatcher()
+
     private val emailSection = FormItemSpec.SectionSpec(IdentifierSpec("emailSection"), Email)
     private val countrySection = FormItemSpec.SectionSpec(
         IdentifierSpec("countrySection"),
@@ -38,7 +50,8 @@ internal class FormViewModelTest {
                 ApplicationProvider.getApplicationContext<Context>().resources
             ),
             AddressFieldElementRepository(
-                ApplicationProvider.getApplicationContext<Context>().resources
+                ApplicationProvider.getApplicationContext<Context>().resources,
+                TransformAddressToSpec(testDispatcher)
             )
         )
 

@@ -24,7 +24,7 @@ import kotlin.coroutines.CoroutineContext
 
 @Singleton
 internal class TransformAddressToSpec @Inject internal constructor(
-    val workContext: CoroutineContext = Dispatchers.IO
+    private val workContext: CoroutineContext
 ) {
     private val format = Json { ignoreUnknownKeys = true }
 
