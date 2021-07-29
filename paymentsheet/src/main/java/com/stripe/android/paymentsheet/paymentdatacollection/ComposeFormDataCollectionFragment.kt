@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.stripe.android.paymentsheet.StripeTheme
 import com.stripe.android.paymentsheet.forms.Form
 import com.stripe.android.paymentsheet.forms.FormViewModel
 import com.stripe.android.paymentsheet.model.SupportedPaymentMethod
+import com.stripe.android.paymentsheet.repository.RepositoryHolder
+import com.stripe.android.paymentsheet.repository.ResourceRepository
 
 /**
  * Fragment that displays a form for payment data collection based on the [SupportedPaymentMethod]
@@ -42,6 +45,7 @@ class ComposeFormDataCollectionFragment : Fragment() {
                 EXTRA_SAVE_FOR_FUTURE_USE_VISIBILITY
             ),
             requireNotNull(requireArguments().getString(EXTRA_MERCHANT_NAME)),
+            (activity as RepositoryHolder).getResourceRepository()
         )
     }
 

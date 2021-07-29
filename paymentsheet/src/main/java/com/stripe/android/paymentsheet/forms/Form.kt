@@ -45,12 +45,11 @@ import com.stripe.android.paymentsheet.injection.SAVE_FOR_FUTURE_USE_INITIAL_VIS
 import com.stripe.android.paymentsheet.specifications.FormItemSpec
 import com.stripe.android.paymentsheet.specifications.IdentifierSpec
 import com.stripe.android.paymentsheet.specifications.LayoutSpec
-import com.stripe.android.paymentsheet.specifications.ResourceRepository
+import com.stripe.android.paymentsheet.repository.ResourceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
@@ -227,7 +226,8 @@ class FormViewModel @Inject internal constructor(
         private val layout: LayoutSpec,
         private val saveForFutureUseValue: Boolean,
         private val saveForFutureUseVisibility: Boolean,
-        private val merchantName: String
+        private val merchantName: String,
+        private val resourceRepository: ResourceRepository
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
@@ -240,12 +240,16 @@ class FormViewModel @Inject internal constructor(
                 .saveForFutureUseVisibility(saveForFutureUseVisibility)
                 .merchantName(merchantName)
                 .resourceLoadingContext(Dispatchers.IO)
+                .resourceRepository(resourceRepository)
                 .build()
                 .viewModel as T
         }
     }
 
-    internal val elements: List<FormElement> = layout.items.transform(merchantName)
+    private val transformSpecToElement = TransformSpecToElement(resourceRepository)
+
+    internal val elements: List<FormElement> =
+        transformSpecToElement.transform(layout.items, merchantName)
 
     init {
         resourceRepository.addressRepository.get("ZZ")

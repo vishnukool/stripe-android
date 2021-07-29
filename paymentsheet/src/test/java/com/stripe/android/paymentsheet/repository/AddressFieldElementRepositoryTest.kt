@@ -1,9 +1,9 @@
-package com.stripe.android.paymentsheet.address
+package com.stripe.android.paymentsheet.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.google.common.truth.Truth.assertThat
-import com.stripe.android.paymentsheet.address.AddressFieldElementRepository.Companion.DEFAULT_COUNTRY_CODE
-import com.stripe.android.paymentsheet.address.AddressFieldElementRepository.Companion.supportedCountries
+import com.stripe.android.paymentsheet.repository.AddressFieldElementRepository.Companion.DEFAULT_COUNTRY_CODE
+import com.stripe.android.paymentsheet.repository.AddressFieldElementRepository.Companion.supportedCountries
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
@@ -19,10 +19,8 @@ class AddressFieldElementRepositoryTest {
 
     private val testDispatcher = TestCoroutineDispatcher()
 
-    private val transformAddressToSpec =
-        com.stripe.android.paymentsheet.address.TransformAddressToSpec(testDispatcher)
-    private val addressFieldElementRepository =
-        com.stripe.android.paymentsheet.address.AddressFieldElementRepository(
+    private val transformAddressToSpec = TransformAddressToSpec(testDispatcher)
+    private val addressFieldElementRepository = AddressFieldElementRepository(
             mock(),
             transformAddressToSpec
         )

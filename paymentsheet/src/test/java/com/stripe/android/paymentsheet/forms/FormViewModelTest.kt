@@ -6,15 +6,13 @@ import androidx.lifecycle.asLiveData
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.stripe.android.paymentsheet.FormElement.SectionElement
-import com.stripe.android.paymentsheet.address.AddressFieldElementRepository
-import com.stripe.android.paymentsheet.address.TransformAddressToSpec
 import com.stripe.android.paymentsheet.elements.SaveForFutureUseController
 import com.stripe.android.paymentsheet.elements.TextFieldController
-import com.stripe.android.paymentsheet.address.BankRepository
+import com.stripe.android.paymentsheet.repository.BankRepository
 import com.stripe.android.paymentsheet.specifications.FormItemSpec
 import com.stripe.android.paymentsheet.specifications.IdentifierSpec
 import com.stripe.android.paymentsheet.specifications.LayoutSpec
-import com.stripe.android.paymentsheet.address.ResourceRepository
+import com.stripe.android.paymentsheet.repository.ResourceRepository
 import com.stripe.android.paymentsheet.specifications.SectionFieldSpec.Companion.NAME
 import com.stripe.android.paymentsheet.specifications.SectionFieldSpec.Country
 import com.stripe.android.paymentsheet.specifications.SectionFieldSpec.Email
@@ -43,14 +41,13 @@ internal class FormViewModelTest {
         Country()
     )
 
-    private val resourceRepository =
-        com.stripe.android.paymentsheet.address.ResourceRepository(
-            com.stripe.android.paymentsheet.address.BankRepository(
+    private val resourceRepository =ResourceRepository(
+        BankRepository(
                 ApplicationProvider.getApplicationContext<Context>().resources
             ),
-            com.stripe.android.paymentsheet.address.AddressFieldElementRepository(
+            com.stripe.android.paymentsheet.repository.AddressFieldElementRepository(
                 ApplicationProvider.getApplicationContext<Context>().resources,
-                com.stripe.android.paymentsheet.address.TransformAddressToSpec(testDispatcher)
+                com.stripe.android.paymentsheet.repository.TransformAddressToSpec(testDispatcher)
             )
         )
 

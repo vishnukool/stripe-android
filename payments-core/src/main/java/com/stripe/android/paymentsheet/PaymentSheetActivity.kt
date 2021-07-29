@@ -27,13 +27,15 @@ import com.stripe.android.paymentsheet.analytics.DefaultEventReporter
 import com.stripe.android.paymentsheet.analytics.EventReporter
 import com.stripe.android.paymentsheet.model.PaymentSelection
 import com.stripe.android.paymentsheet.model.PaymentSheetViewState
+import com.stripe.android.paymentsheet.repository.RepositoryHolder
+import com.stripe.android.paymentsheet.repository.ResourceRepository
 import com.stripe.android.paymentsheet.ui.AnimationConstants
 import com.stripe.android.paymentsheet.ui.BaseSheetActivity
 import com.stripe.android.paymentsheet.viewmodels.BaseSheetViewModel
 import com.stripe.android.view.AuthActivityStarterHost
 import kotlinx.coroutines.launch
 
-internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>() {
+internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>(), RepositoryHolder {
     @VisibleForTesting
     internal var viewModelFactory: ViewModelProvider.Factory =
         PaymentSheetViewModel.Factory(
@@ -320,4 +322,6 @@ internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>() {
         internal const val EXTRA_FRAGMENT_CONFIG = BaseSheetActivity.EXTRA_FRAGMENT_CONFIG
         internal const val EXTRA_STARTER_ARGS = BaseSheetActivity.EXTRA_STARTER_ARGS
     }
+
+    override fun getResourceRepository(): ResourceRepository = viewModel.getResourceRepository()
 }

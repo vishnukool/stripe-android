@@ -1,7 +1,9 @@
-package com.stripe.android.paymentsheet.specifications
+package com.stripe.android.paymentsheet.repository
 
 import android.content.res.Resources
 import androidx.annotation.VisibleForTesting
+import com.stripe.android.paymentsheet.specifications.DropdownItem
+import com.stripe.android.paymentsheet.specifications.SupportedBankType
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.InputStream

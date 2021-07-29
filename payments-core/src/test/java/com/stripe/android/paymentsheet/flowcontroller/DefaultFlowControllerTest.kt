@@ -775,7 +775,6 @@ internal class DefaultFlowControllerTest {
         paymentController,
         { PaymentConfiguration.getInstance(activity) },
         { flowResultProcessor },
-        mock()
     )
 
     private class FakeFlowControllerInitializer(

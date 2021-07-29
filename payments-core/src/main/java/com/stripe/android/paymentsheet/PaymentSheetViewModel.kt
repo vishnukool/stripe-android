@@ -43,7 +43,8 @@ import com.stripe.android.paymentsheet.model.StripeIntentValidator
 import com.stripe.android.paymentsheet.model.SupportedPaymentMethod
 import com.stripe.android.paymentsheet.repositories.PaymentMethodsRepository
 import com.stripe.android.paymentsheet.repositories.StripeIntentRepository
-import com.stripe.android.paymentsheet.specifications.ResourceRepository
+import com.stripe.android.paymentsheet.repository.RepositoryHolder
+import com.stripe.android.paymentsheet.repository.ResourceRepository
 import com.stripe.android.paymentsheet.ui.PrimaryButton
 import com.stripe.android.paymentsheet.viewmodels.BaseSheetViewModel
 import com.stripe.android.view.AuthActivityStarterHost
@@ -97,6 +98,7 @@ internal class PaymentSheetViewModel @Inject internal constructor(
     prefsRepository = prefsRepository,
     workContext = workContext
 ) {
+
     private val confirmParamsFactory =
         ConfirmStripeIntentParamsFactory.createFactory(args.clientSecret)
 
@@ -125,6 +127,8 @@ internal class PaymentSheetViewModel @Inject internal constructor(
         }
         return outputLiveData
     }
+
+    fun getResourceRepository(): ResourceRepository = resourceRepository
 
     // Holds a reference to the last selected payment method while checking out with Google Pay.
     // If Google Pay is cancelled or fails, it will be set again as the selected payment method.

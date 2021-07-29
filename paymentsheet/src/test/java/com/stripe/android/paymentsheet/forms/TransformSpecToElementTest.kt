@@ -1,5 +1,6 @@
 package com.stripe.android.paymentsheet.forms
 
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -11,19 +12,34 @@ import com.stripe.android.paymentsheet.R
 import com.stripe.android.paymentsheet.SectionFieldElement
 import com.stripe.android.paymentsheet.SectionFieldElement.Country
 import com.stripe.android.paymentsheet.SectionFieldElement.Email
-import com.stripe.android.paymentsheet.SectionFieldElement.IdealBank
+import com.stripe.android.paymentsheet.repository.AddressFieldElementRepository
+import com.stripe.android.paymentsheet.SectionFieldElement.SimpleDropdown
 import com.stripe.android.paymentsheet.elements.CountryConfig
 import com.stripe.android.paymentsheet.elements.EmailConfig
-import com.stripe.android.paymentsheet.elements.IdealBankConfig
 import com.stripe.android.paymentsheet.elements.NameConfig
+import com.stripe.android.paymentsheet.repository.BankRepository
 import com.stripe.android.paymentsheet.specifications.FormItemSpec
 import com.stripe.android.paymentsheet.specifications.IdentifierSpec
+import com.stripe.android.paymentsheet.repository.ResourceRepository
+import com.stripe.android.paymentsheet.repository.TransformAddressToSpec
 import com.stripe.android.paymentsheet.specifications.SectionFieldSpec
+import com.stripe.android.paymentsheet.specifications.SupportedBankType
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.mockito.kotlin.mock
+import java.io.File
 
+@ExperimentalCoroutinesApi
 class TransformSpecToElementTest {
+    @get:Rule
+    val rule = InstantTaskExecutorRule()
+
+    private val testDispatcher = TestCoroutineDispatcher()
 
     private val nameSection = FormItemSpec.SectionSpec(
         IdentifierSpec("nameSection"),
@@ -35,22 +51,45 @@ class TransformSpecToElementTest {
         SectionFieldSpec.Email
     )
 
-    @Test
-    fun `Section with multiple fields contains all fields in the section element`() {
-        val formElement = listOf(
-            FormItemSpec.SectionSpec(
-                IdentifierSpec("multifieldSection"),
-                listOf(
-                    SectionFieldSpec.Country(),
-                    SectionFieldSpec.IdealBank
+    private lateinit var transformSpecToElement: TransformSpecToElement
+    private lateinit var transformAddressToSpec: TransformAddressToSpec
+
+    @Before
+    fun beforeTest() {
+        val bankRepository = BankRepository(mock())
+        bankRepository.init(
+            mapOf(SupportedBankType.Ideal to IDEAL_BANKS_JSON.byteInputStream())
+        )
+        transformAddressToSpec = TransformAddressToSpec(testDispatcher)
+
+        transformSpecToElement =
+            TransformSpecToElement(
+                ResourceRepository(
+                    bankRepository,
+                    AddressFieldElementRepository(mock(), transformAddressToSpec)
                 )
             )
-        ).transform("Example, Inc.")
+    }
+
+    @Test
+    fun `Section with multiple fields contains all fields in the section element`() {
+        val formElement = transformSpecToElement.transform(
+            listOf(
+                FormItemSpec.SectionSpec(
+                    IdentifierSpec("multifieldSection"),
+                    listOf(
+                        SectionFieldSpec.Country(),
+                        IDEAL_BANK_CONFIG
+                    )
+                )
+            ),
+            "Example, Inc."
+        )
 
         val sectionElement = formElement[0] as SectionElement
         assertThat(sectionElement.fields.size).isEqualTo(2)
         assertThat(sectionElement.fields[0]).isInstanceOf(Country::class.java)
-        assertThat(sectionElement.fields[1]).isInstanceOf(IdealBank::class.java)
+        assertThat(sectionElement.fields[1]).isInstanceOf(SimpleDropdown::class.java)
     }
 
     @Test
@@ -59,7 +98,10 @@ class TransformSpecToElementTest {
             IdentifierSpec("countrySection"),
             SectionFieldSpec.Country(onlyShowCountryCodes = setOf("AT"))
         )
-        val formElement = listOf(countrySection).transform("Example, Inc.")
+        val formElement = transformSpecToElement.transform(
+            listOf(countrySection),
+            "Example, Inc."
+        )
 
         val countrySectionElement = formElement.first() as SectionElement
         val countryElement = countrySectionElement.fields[0] as Country
@@ -79,15 +121,18 @@ class TransformSpecToElementTest {
     fun `Adding a ideal bank section sets up the section and country elements correctly`() {
         val idealSection = FormItemSpec.SectionSpec(
             IdentifierSpec("idealSection"),
-            SectionFieldSpec.IdealBank
+            IDEAL_BANK_CONFIG
         )
-        val formElement = listOf(idealSection).transform("Example, Inc.")
+        val formElement = transformSpecToElement.transform(
+            listOf(idealSection),
+            "Example, Inc."
+        )
 
         val idealSectionElement = formElement.first() as SectionElement
-        val idealElement = idealSectionElement.fields[0] as IdealBank
+        val idealElement = idealSectionElement.fields[0] as SimpleDropdown
 
         // Verify the correct config is setup for the controller
-        assertThat(idealElement.controller.label).isEqualTo(IdealBankConfig().label)
+        assertThat(idealElement.controller.label).isEqualTo(R.string.stripe_paymentsheet_ideal_bank)
 
         assertThat(idealSectionElement.identifier.value).isEqualTo("idealSection")
 
@@ -96,7 +141,10 @@ class TransformSpecToElementTest {
 
     @Test
     fun `Add a name section spec sets up the name element correctly`() {
-        val formElement = listOf(nameSection).transform("Example, Inc.")
+        val formElement = transformSpecToElement.transform(
+            listOf(nameSection),
+            "Example, Inc."
+        )
 
         val nameElement =
             (formElement.first() as SectionElement).fields[0] as SectionFieldElement.SimpleText
@@ -111,18 +159,21 @@ class TransformSpecToElementTest {
 
     @Test
     fun `Add a simple text section spec sets up the text element correctly`() {
-        val formElement = listOf(
-            FormItemSpec.SectionSpec(
-                IdentifierSpec("simple_section"),
-                SectionFieldSpec.SimpleText(
-                    IdentifierSpec("simple"),
-                    R.string.address_label_name,
-                    showOptionalLabel = true,
-                    keyboardType = KeyboardType.Text,
-                    capitalization = KeyboardCapitalization.Words
+        val formElement = transformSpecToElement.transform(
+            listOf(
+                FormItemSpec.SectionSpec(
+                    IdentifierSpec("simple_section"),
+                    SectionFieldSpec.SimpleText(
+                        IdentifierSpec("simple"),
+                        R.string.address_label_name,
+                        showOptionalLabel = true,
+                        keyboardType = KeyboardType.Text,
+                        capitalization = KeyboardCapitalization.Words
+                    )
                 )
-            )
-        ).transform("Example, Inc.")
+            ),
+            "Example, Inc."
+        )
 
         val nameElement = (formElement.first() as SectionElement).fields[0]
             as SectionFieldElement.SimpleText
@@ -135,7 +186,10 @@ class TransformSpecToElementTest {
 
     @Test
     fun `Add a email section spec sets up the email element correctly`() {
-        val formElement = listOf(emailSection).transform("Example, Inc.")
+        val formElement = transformSpecToElement.transform(
+            listOf(emailSection),
+            "Example, Inc."
+        )
 
         val emailSectionElement = formElement.first() as SectionElement
         val emailElement = emailSectionElement.fields[0] as Email
@@ -152,7 +206,10 @@ class TransformSpecToElementTest {
             R.string.stripe_paymentsheet_sepa_mandate,
             Color.Gray
         )
-        val formElement = listOf(mandate).transform("Example, Inc.")
+        val formElement = transformSpecToElement.transform(
+            listOf(mandate),
+            "Example, Inc."
+        )
 
         val mandateElement = formElement.first() as MandateTextElement
 
@@ -172,9 +229,13 @@ class TransformSpecToElementTest {
             )
             val hiddenIdentifiers = listOf(nameSection, mandate)
             val saveForFutureUseSpec = FormItemSpec.SaveForFutureUseSpec(hiddenIdentifiers)
-            val formElement = listOf(saveForFutureUseSpec).transform("Example, Inc.")
+            val formElement = transformSpecToElement.transform(
+                listOf(saveForFutureUseSpec),
+                "Example, Inc."
+            )
 
-            val saveForFutureUseElement = formElement.first() as FormElement.SaveForFutureUseElement
+            val saveForFutureUseElement =
+                formElement.first() as FormElement.SaveForFutureUseElement
             val saveForFutureUseController = saveForFutureUseElement.controller
 
             assertThat(saveForFutureUseElement.identifier)
@@ -188,4 +249,18 @@ class TransformSpecToElementTest {
                     hiddenIdentifiers.map { it.identifier }
                 )
         }
+
+    companion object {
+        val IDEAL_BANK_CONFIG = SectionFieldSpec.BankDropdown(
+            IdentifierSpec("bank"),
+            R.string.stripe_paymentsheet_ideal_bank,
+            SupportedBankType.Ideal
+        )
+
+        val IDEAL_BANKS_JSON =
+            File("src/main/assets/idealBanks.json")
+                .inputStream()
+                .bufferedReader()
+                .use { it.readText() }
+    }
 }

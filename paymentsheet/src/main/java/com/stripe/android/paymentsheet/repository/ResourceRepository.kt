@@ -1,6 +1,5 @@
-package com.stripe.android.paymentsheet.specifications
+package com.stripe.android.paymentsheet.repository
 
-import com.stripe.android.paymentsheet.address.AddressFieldElementRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 

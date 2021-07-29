@@ -1,12 +1,13 @@
-package com.stripe.android.paymentsheet.address
+package com.stripe.android.paymentsheet.repository
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import com.stripe.android.paymentsheet.R
+import com.stripe.android.paymentsheet.repository.TransformAddressToSpec.CountryAddressSchema
+import com.stripe.android.paymentsheet.forms.transform
 import com.stripe.android.paymentsheet.specifications.IdentifierSpec
 import com.stripe.android.paymentsheet.specifications.SectionFieldSpec
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
@@ -30,7 +31,7 @@ internal class TransformAddressToSpec @Inject internal constructor(
 
     internal suspend fun parseAddressesSchema(inputStream: InputStream?) =
         getJsonStringFromInputStream(inputStream)?.let {
-            format.decodeFromString<List<AddressSchema>>(
+            format.decodeFromString<List<CountryAddressSchema>>(
                 it
             )
         }
@@ -107,7 +108,7 @@ internal class TransformAddressToSpec @Inject internal constructor(
     )
 
     @Serializable
-    internal class AddressSchema(
+    internal class CountryAddressSchema(
         val type: FieldType?,
         val required: Boolean,
         val schema: FieldSchema? = null
@@ -115,7 +116,7 @@ internal class TransformAddressToSpec @Inject internal constructor(
 }
 
 
-internal fun List<TransformAddressToSpec.AddressSchema>.transformToSpecFieldList() =
+internal fun List<CountryAddressSchema>.transformToElementList() =
     this.mapNotNull {
         when (it.type) {
             TransformAddressToSpec.FieldType.AddressLine1 -> {
@@ -166,6 +167,8 @@ internal fun List<TransformAddressToSpec.AddressSchema>.transformToSpecFieldList
             }
             else -> null
         }
+    }.map {
+        it.transform()
     }
 
 private fun getKeyboard(fieldSchema: TransformAddressToSpec.FieldSchema?) =
