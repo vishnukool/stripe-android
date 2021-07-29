@@ -28,8 +28,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
-import org.junit.Before
 import org.junit.Rule
+import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
 import java.io.File

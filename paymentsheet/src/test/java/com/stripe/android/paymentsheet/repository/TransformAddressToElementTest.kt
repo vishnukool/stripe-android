@@ -23,7 +23,7 @@ import java.io.File
 import java.security.InvalidParameterException
 
 @ExperimentalCoroutinesApi
-class TransformAddressToSpecTest {
+class TransformAddressToElementTest {
     @get:Rule
     val rule = InstantTaskExecutorRule()
 

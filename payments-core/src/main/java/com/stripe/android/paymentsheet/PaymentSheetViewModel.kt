@@ -43,7 +43,6 @@ import com.stripe.android.paymentsheet.model.StripeIntentValidator
 import com.stripe.android.paymentsheet.model.SupportedPaymentMethod
 import com.stripe.android.paymentsheet.repositories.PaymentMethodsRepository
 import com.stripe.android.paymentsheet.repositories.StripeIntentRepository
-import com.stripe.android.paymentsheet.repository.RepositoryHolder
 import com.stripe.android.paymentsheet.repository.ResourceRepository
 import com.stripe.android.paymentsheet.ui.PrimaryButton
 import com.stripe.android.paymentsheet.viewmodels.BaseSheetViewModel
@@ -85,7 +84,7 @@ internal class PaymentSheetViewModel @Inject internal constructor(
     private val stripeIntentRepository: StripeIntentRepository,
     private val paymentMethodsRepository: PaymentMethodsRepository,
     private val paymentFlowResultProcessorProvider:
-    Provider<PaymentFlowResultProcessor<out StripeIntent, StripeIntentResult<StripeIntent>>>,
+        Provider<PaymentFlowResultProcessor<out StripeIntent, StripeIntentResult<StripeIntent>>>,
     private val googlePayRepository: GooglePayRepository,
     prefsRepository: PrefsRepository,
     private val logger: Logger,

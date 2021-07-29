@@ -261,7 +261,6 @@ class FormViewModel @Inject internal constructor(
         this.enabled.value = enabled
     }
 
-
     private val saveForFutureUseVisible = MutableStateFlow(saveForFutureUseInitialVisibility)
 
     internal fun setSaveForFutureUseVisibility(isVisible: Boolean) {

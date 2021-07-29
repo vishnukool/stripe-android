@@ -115,7 +115,6 @@ internal class TransformAddressToSpec @Inject internal constructor(
     )
 }
 
-
 internal fun List<CountryAddressSchema>.transformToElementList() =
     this.mapNotNull {
         when (it.type) {

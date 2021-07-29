@@ -41,15 +41,15 @@ internal class FormViewModelTest {
         Country()
     )
 
-    private val resourceRepository =ResourceRepository(
+    private val resourceRepository = ResourceRepository(
         BankRepository(
-                ApplicationProvider.getApplicationContext<Context>().resources
-            ),
-            com.stripe.android.paymentsheet.repository.AddressFieldElementRepository(
-                ApplicationProvider.getApplicationContext<Context>().resources,
-                com.stripe.android.paymentsheet.repository.TransformAddressToSpec(testDispatcher)
-            )
+            ApplicationProvider.getApplicationContext<Context>().resources
+        ),
+        com.stripe.android.paymentsheet.repository.AddressFieldElementRepository(
+            ApplicationProvider.getApplicationContext<Context>().resources,
+            com.stripe.android.paymentsheet.repository.TransformAddressToSpec(testDispatcher)
         )
+    )
 
     @Test
     fun `Verify setting save for future use`() {

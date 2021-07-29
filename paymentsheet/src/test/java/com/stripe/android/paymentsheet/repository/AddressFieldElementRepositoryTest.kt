@@ -21,9 +21,9 @@ class AddressFieldElementRepositoryTest {
 
     private val transformAddressToSpec = TransformAddressToSpec(testDispatcher)
     private val addressFieldElementRepository = AddressFieldElementRepository(
-            mock(),
-            transformAddressToSpec
-        )
+        mock(),
+        transformAddressToSpec
+    )
 
     @Test
     fun `Default country should always be in the supported country list`() {

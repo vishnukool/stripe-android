@@ -5,22 +5,6 @@ public final class com/stripe/android/paymentsheet/BuildConfig {
 	public fun <init> ()V
 }
 
-public final class com/stripe/android/paymentsheet/address/AddressFieldElementRepository_Factory : dagger/internal/Factory {
-	public fun <init> (Ljavax/inject/Provider;Ljavax/inject/Provider;)V
-	public static fun create (Ljavax/inject/Provider;Ljavax/inject/Provider;)Lcom/stripe/android/paymentsheet/address/AddressFieldElementRepository_Factory;
-	public fun get ()Lcom/stripe/android/paymentsheet/address/AddressFieldElementRepository;
-	public synthetic fun get ()Ljava/lang/Object;
-	public static fun newInstance (Landroid/content/res/Resources;Lcom/stripe/android/paymentsheet/address/TransformAddressToSpec;)Lcom/stripe/android/paymentsheet/address/AddressFieldElementRepository;
-}
-
-public final class com/stripe/android/paymentsheet/address/TransformAddressToSpec_Factory : dagger/internal/Factory {
-	public fun <init> (Ljavax/inject/Provider;)V
-	public static fun create (Ljavax/inject/Provider;)Lcom/stripe/android/paymentsheet/address/TransformAddressToSpec_Factory;
-	public fun get ()Lcom/stripe/android/paymentsheet/address/TransformAddressToSpec;
-	public synthetic fun get ()Ljava/lang/Object;
-	public static fun newInstance (Lkotlin/coroutines/CoroutineContext;)Lcom/stripe/android/paymentsheet/address/TransformAddressToSpec;
-}
-
 public final class com/stripe/android/paymentsheet/forms/FormFieldEntry {
 	public static final field $stable I
 	public fun <init> (Ljava/lang/String;Z)V
@@ -54,7 +38,7 @@ public final class com/stripe/android/paymentsheet/forms/FormViewModel_Factory :
 	public static fun create (Ljavax/inject/Provider;Ljavax/inject/Provider;Ljavax/inject/Provider;Ljavax/inject/Provider;Ljavax/inject/Provider;)Lcom/stripe/android/paymentsheet/forms/FormViewModel_Factory;
 	public fun get ()Lcom/stripe/android/paymentsheet/forms/FormViewModel;
 	public synthetic fun get ()Ljava/lang/Object;
-	public static fun newInstance (Lcom/stripe/android/paymentsheet/specifications/LayoutSpec;ZZLjava/lang/String;Lcom/stripe/android/paymentsheet/specifications/ResourceRepository;)Lcom/stripe/android/paymentsheet/forms/FormViewModel;
+	public static fun newInstance (Lcom/stripe/android/paymentsheet/specifications/LayoutSpec;ZZLjava/lang/String;Lcom/stripe/android/paymentsheet/repository/ResourceRepository;)Lcom/stripe/android/paymentsheet/forms/FormViewModel;
 }
 
 public final class com/stripe/android/paymentsheet/injection/DaggerFormViewModelComponent : com/stripe/android/paymentsheet/injection/FormViewModelComponent {
@@ -100,12 +84,45 @@ public final class com/stripe/android/paymentsheet/paymentdatacollection/Compose
 public final class com/stripe/android/paymentsheet/paymentdatacollection/ComposeFormDataCollectionFragment$Companion {
 }
 
-public final class com/stripe/android/paymentsheet/specifications/BankRepository_Factory : dagger/internal/Factory {
-	public fun <init> (Ljavax/inject/Provider;)V
-	public static fun create (Ljavax/inject/Provider;)Lcom/stripe/android/paymentsheet/specifications/BankRepository_Factory;
-	public fun get ()Lcom/stripe/android/paymentsheet/specifications/BankRepository;
+public final class com/stripe/android/paymentsheet/repository/AddressFieldElementRepository_Factory : dagger/internal/Factory {
+	public fun <init> (Ljavax/inject/Provider;Ljavax/inject/Provider;)V
+	public static fun create (Ljavax/inject/Provider;Ljavax/inject/Provider;)Lcom/stripe/android/paymentsheet/repository/AddressFieldElementRepository_Factory;
+	public fun get ()Lcom/stripe/android/paymentsheet/repository/AddressFieldElementRepository;
 	public synthetic fun get ()Ljava/lang/Object;
-	public static fun newInstance (Landroid/content/res/Resources;)Lcom/stripe/android/paymentsheet/specifications/BankRepository;
+	public static fun newInstance (Landroid/content/res/Resources;Lcom/stripe/android/paymentsheet/repository/TransformAddressToSpec;)Lcom/stripe/android/paymentsheet/repository/AddressFieldElementRepository;
+}
+
+public final class com/stripe/android/paymentsheet/repository/BankRepository_Factory : dagger/internal/Factory {
+	public fun <init> (Ljavax/inject/Provider;)V
+	public static fun create (Ljavax/inject/Provider;)Lcom/stripe/android/paymentsheet/repository/BankRepository_Factory;
+	public fun get ()Lcom/stripe/android/paymentsheet/repository/BankRepository;
+	public synthetic fun get ()Ljava/lang/Object;
+	public static fun newInstance (Landroid/content/res/Resources;)Lcom/stripe/android/paymentsheet/repository/BankRepository;
+}
+
+public abstract interface class com/stripe/android/paymentsheet/repository/RepositoryHolder {
+	public abstract fun getResourceRepository ()Lcom/stripe/android/paymentsheet/repository/ResourceRepository;
+}
+
+public final class com/stripe/android/paymentsheet/repository/ResourceRepository {
+	public static final field $stable I
+	public final fun init (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/stripe/android/paymentsheet/repository/ResourceRepository_Factory : dagger/internal/Factory {
+	public fun <init> (Ljavax/inject/Provider;Ljavax/inject/Provider;)V
+	public static fun create (Ljavax/inject/Provider;Ljavax/inject/Provider;)Lcom/stripe/android/paymentsheet/repository/ResourceRepository_Factory;
+	public fun get ()Lcom/stripe/android/paymentsheet/repository/ResourceRepository;
+	public synthetic fun get ()Ljava/lang/Object;
+	public static fun newInstance (Lcom/stripe/android/paymentsheet/repository/BankRepository;Lcom/stripe/android/paymentsheet/repository/AddressFieldElementRepository;)Lcom/stripe/android/paymentsheet/repository/ResourceRepository;
+}
+
+public final class com/stripe/android/paymentsheet/repository/TransformAddressToSpec_Factory : dagger/internal/Factory {
+	public fun <init> (Ljavax/inject/Provider;)V
+	public static fun create (Ljavax/inject/Provider;)Lcom/stripe/android/paymentsheet/repository/TransformAddressToSpec_Factory;
+	public fun get ()Lcom/stripe/android/paymentsheet/repository/TransformAddressToSpec;
+	public synthetic fun get ()Ljava/lang/Object;
+	public static fun newInstance (Lkotlin/coroutines/CoroutineContext;)Lcom/stripe/android/paymentsheet/repository/TransformAddressToSpec;
 }
 
 public final class com/stripe/android/paymentsheet/specifications/DropdownItem {
@@ -233,14 +250,6 @@ public final class com/stripe/android/paymentsheet/specifications/LayoutSpec {
 
 public abstract interface class com/stripe/android/paymentsheet/specifications/RequiredItemSpec {
 	public abstract fun getIdentifier ()Lcom/stripe/android/paymentsheet/specifications/IdentifierSpec;
-}
-
-public final class com/stripe/android/paymentsheet/specifications/ResourceRepository_Factory : dagger/internal/Factory {
-	public fun <init> (Ljavax/inject/Provider;Ljavax/inject/Provider;)V
-	public static fun create (Ljavax/inject/Provider;Ljavax/inject/Provider;)Lcom/stripe/android/paymentsheet/specifications/ResourceRepository_Factory;
-	public fun get ()Lcom/stripe/android/paymentsheet/specifications/ResourceRepository;
-	public synthetic fun get ()Ljava/lang/Object;
-	public static fun newInstance (Lcom/stripe/android/paymentsheet/specifications/BankRepository;Lcom/stripe/android/paymentsheet/address/AddressFieldElementRepository;)Lcom/stripe/android/paymentsheet/specifications/ResourceRepository;
 }
 
 public abstract class com/stripe/android/paymentsheet/specifications/SectionFieldSpec {
