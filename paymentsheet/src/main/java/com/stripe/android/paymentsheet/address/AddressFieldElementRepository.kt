@@ -3,13 +3,15 @@ package com.stripe.android.paymentsheet.address
 import android.content.res.Resources
 import androidx.annotation.VisibleForTesting
 import com.stripe.android.paymentsheet.SectionFieldElement
+import com.stripe.android.paymentsheet.address.TransformAddressToSpec.AddressSchema
 import com.stripe.android.paymentsheet.forms.transform
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 internal class AddressFieldElementRepository @Inject internal constructor(
-    val resources: Resources
+    private val resources: Resources,
+    private val transformAddressToSpec: TransformAddressToSpec
 ) {
     private val countryFieldMap = mutableMapOf<String, List<SectionFieldElement>?>()
 
@@ -17,13 +19,13 @@ internal class AddressFieldElementRepository @Inject internal constructor(
         countryFieldMap[it]
     } ?: countryFieldMap[DEFAULT_COUNTRY_CODE]
 
-    internal fun init() {
+    internal suspend fun init() {
         init(
             supportedCountries.associateWith { countryCode ->
                 "addressinfo/$countryCode.json"
             }.mapValues { (_, assetFileName) ->
                 requireNotNull(
-                    parseAddressesSchema(
+                    transformAddressToSpec.parseAddressesSchema(
                         resources.assets.open(assetFileName)
                     ),
                 )
