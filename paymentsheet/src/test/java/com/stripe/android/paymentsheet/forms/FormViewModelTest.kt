@@ -10,11 +10,11 @@ import com.stripe.android.paymentsheet.address.AddressFieldElementRepository
 import com.stripe.android.paymentsheet.address.TransformAddressToSpec
 import com.stripe.android.paymentsheet.elements.SaveForFutureUseController
 import com.stripe.android.paymentsheet.elements.TextFieldController
-import com.stripe.android.paymentsheet.specifications.BankRepository
+import com.stripe.android.paymentsheet.address.BankRepository
 import com.stripe.android.paymentsheet.specifications.FormItemSpec
 import com.stripe.android.paymentsheet.specifications.IdentifierSpec
 import com.stripe.android.paymentsheet.specifications.LayoutSpec
-import com.stripe.android.paymentsheet.specifications.ResourceRepository
+import com.stripe.android.paymentsheet.address.ResourceRepository
 import com.stripe.android.paymentsheet.specifications.SectionFieldSpec.Companion.NAME
 import com.stripe.android.paymentsheet.specifications.SectionFieldSpec.Country
 import com.stripe.android.paymentsheet.specifications.SectionFieldSpec.Email
@@ -26,7 +26,6 @@ import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowLooper
 
@@ -45,13 +44,13 @@ internal class FormViewModelTest {
     )
 
     private val resourceRepository =
-        ResourceRepository(
-            BankRepository(
+        com.stripe.android.paymentsheet.address.ResourceRepository(
+            com.stripe.android.paymentsheet.address.BankRepository(
                 ApplicationProvider.getApplicationContext<Context>().resources
             ),
-            AddressFieldElementRepository(
+            com.stripe.android.paymentsheet.address.AddressFieldElementRepository(
                 ApplicationProvider.getApplicationContext<Context>().resources,
-                TransformAddressToSpec(testDispatcher)
+                com.stripe.android.paymentsheet.address.TransformAddressToSpec(testDispatcher)
             )
         )
 

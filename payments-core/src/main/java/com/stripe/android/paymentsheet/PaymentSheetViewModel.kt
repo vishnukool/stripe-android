@@ -43,9 +43,11 @@ import com.stripe.android.paymentsheet.model.StripeIntentValidator
 import com.stripe.android.paymentsheet.model.SupportedPaymentMethod
 import com.stripe.android.paymentsheet.repositories.PaymentMethodsRepository
 import com.stripe.android.paymentsheet.repositories.StripeIntentRepository
+import com.stripe.android.paymentsheet.specifications.ResourceRepository
 import com.stripe.android.paymentsheet.ui.PrimaryButton
 import com.stripe.android.paymentsheet.viewmodels.BaseSheetViewModel
 import com.stripe.android.view.AuthActivityStarterHost
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
@@ -82,12 +84,13 @@ internal class PaymentSheetViewModel @Inject internal constructor(
     private val stripeIntentRepository: StripeIntentRepository,
     private val paymentMethodsRepository: PaymentMethodsRepository,
     private val paymentFlowResultProcessorProvider:
-        Provider<PaymentFlowResultProcessor<out StripeIntent, StripeIntentResult<StripeIntent>>>,
+    Provider<PaymentFlowResultProcessor<out StripeIntent, StripeIntentResult<StripeIntent>>>,
     private val googlePayRepository: GooglePayRepository,
     prefsRepository: PrefsRepository,
     private val logger: Logger,
     @IOContext workContext: CoroutineContext,
-    private val paymentController: PaymentController
+    private val paymentController: PaymentController,
+    private val resourceRepository: ResourceRepository
 ) : BaseSheetViewModel<PaymentSheetViewModel.TransitionTarget>(
     application = application,
     config = args.config,
@@ -174,6 +177,7 @@ internal class PaymentSheetViewModel @Inject internal constructor(
      */
     fun fetchStripeIntent() {
         viewModelScope.launch {
+            resourceRepository.init()
             runCatching {
                 stripeIntentRepository.get(args.clientSecret)
             }.fold(
@@ -508,6 +512,8 @@ internal class PaymentSheetViewModel @Inject internal constructor(
                         )
                     }
                 )
+                .resources(applicationSupplier().resources)
+                .resourceLoadingContext(Dispatchers.IO)
                 .build()
                 .viewModel as T
         }

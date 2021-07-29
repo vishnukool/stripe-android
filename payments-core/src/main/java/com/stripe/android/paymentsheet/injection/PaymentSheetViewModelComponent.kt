@@ -1,6 +1,7 @@
 package com.stripe.android.paymentsheet.injection
 
 import android.app.Application
+import android.content.res.Resources
 import com.stripe.android.payments.core.injection.PaymentCommonModule
 import com.stripe.android.paymentsheet.PaymentSheetContract
 import com.stripe.android.paymentsheet.PaymentSheetViewModel
@@ -8,6 +9,7 @@ import com.stripe.android.paymentsheet.analytics.EventReporter
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
+import kotlin.coroutines.CoroutineContext
 
 @Singleton
 @Component(
@@ -29,6 +31,12 @@ internal interface PaymentSheetViewModelComponent {
 
         @BindsInstance
         fun eventReporter(eventReporter: EventReporter): Builder
+
+        @BindsInstance
+        fun resources(resources: Resources): Builder
+
+        @BindsInstance
+        fun resourceLoadingContext(workContext: CoroutineContext): Builder
 
         fun build(): PaymentSheetViewModelComponent
     }

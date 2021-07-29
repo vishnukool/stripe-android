@@ -10,6 +10,7 @@ import com.stripe.android.paymentsheet.address.TransformAddressToSpec.AddressSch
 import com.stripe.android.paymentsheet.address.TransformAddressToSpec.FieldType.AddressLine1
 import com.stripe.android.paymentsheet.address.TransformAddressToSpec.FieldType.AddressLine2
 import com.stripe.android.paymentsheet.address.TransformAddressToSpec.FieldType.Locality
+import com.stripe.android.paymentsheet.address.transformToSpecFieldList
 import com.stripe.android.paymentsheet.specifications.IdentifierSpec
 import com.stripe.android.paymentsheet.specifications.SectionFieldSpec
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -27,7 +28,8 @@ class TransformAddressToSpecTest {
 
     private val testDispatcher = TestCoroutineDispatcher()
 
-    private val transformAddressToSpec = TransformAddressToSpec(testDispatcher)
+    private val transformAddressToSpec =
+        com.stripe.android.paymentsheet.address.TransformAddressToSpec(testDispatcher)
 
     @Test
     fun `Read US Json`() {

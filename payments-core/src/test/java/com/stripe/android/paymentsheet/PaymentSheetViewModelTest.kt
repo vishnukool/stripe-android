@@ -801,6 +801,7 @@ internal class PaymentSheetViewModelTest {
             prefsRepository,
             Logger.noop(),
             testDispatcher,
+            mock(),
             mock()
         )
     }

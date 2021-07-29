@@ -8,11 +8,11 @@ import javax.inject.Singleton
  * This holds all the resources read in from JSON.
  */
 @Singleton
-internal class ResourceRepository @Inject internal constructor(
+class ResourceRepository @Inject internal constructor(
     internal val bankRepository: BankRepository,
     internal val addressRepository: AddressFieldElementRepository
 ) {
-    internal suspend fun init() {
+    suspend fun init() {
         bankRepository.init()
         addressRepository.init()
     }

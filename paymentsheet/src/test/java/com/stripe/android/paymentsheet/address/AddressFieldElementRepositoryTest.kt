@@ -19,11 +19,13 @@ class AddressFieldElementRepositoryTest {
 
     private val testDispatcher = TestCoroutineDispatcher()
 
-    private val transformAddressToSpec = TransformAddressToSpec(testDispatcher)
-    private val addressFieldElementRepository = AddressFieldElementRepository(
-        mock(),
-        transformAddressToSpec
-    )
+    private val transformAddressToSpec =
+        com.stripe.android.paymentsheet.address.TransformAddressToSpec(testDispatcher)
+    private val addressFieldElementRepository =
+        com.stripe.android.paymentsheet.address.AddressFieldElementRepository(
+            mock(),
+            transformAddressToSpec
+        )
 
     @Test
     fun `Default country should always be in the supported country list`() {

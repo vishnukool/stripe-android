@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
 import com.stripe.android.paymentsheet.FormElement
 import com.stripe.android.paymentsheet.FormElement.MandateTextElement
 import com.stripe.android.paymentsheet.FormElement.SaveForFutureUseElement
@@ -246,12 +245,11 @@ class FormViewModel @Inject internal constructor(
         }
     }
 
+    internal val elements: List<FormElement> = layout.items.transform(merchantName)
+
     init {
-        viewModelScope.launch {
-            resourceRepository.init()
-            elements = layout.items.transform(merchantName)
-            setSaveForFutureUse(saveForFutureUseInitialValue)
-        }
+        resourceRepository.addressRepository.get("ZZ")
+        setSaveForFutureUse(saveForFutureUseInitialValue)
     }
 
     internal val enabled = MutableStateFlow(true)
@@ -259,7 +257,6 @@ class FormViewModel @Inject internal constructor(
         this.enabled.value = enabled
     }
 
-    internal lateinit var elements: List<FormElement>
 
     private val saveForFutureUseVisible = MutableStateFlow(saveForFutureUseInitialVisibility)
 
