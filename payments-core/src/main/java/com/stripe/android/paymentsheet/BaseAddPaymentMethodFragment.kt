@@ -23,13 +23,15 @@ import com.stripe.android.paymentsheet.model.SupportedPaymentMethod
 import com.stripe.android.paymentsheet.paymentdatacollection.CardDataCollectionFragment
 import com.stripe.android.paymentsheet.paymentdatacollection.ComposeFormDataCollectionFragment
 import com.stripe.android.paymentsheet.paymentdatacollection.TransformToPaymentMethodCreateParams
+import com.stripe.android.paymentsheet.repository.RepositoryHolder
+import com.stripe.android.paymentsheet.repository.ResourceRepository
 import com.stripe.android.paymentsheet.ui.AddPaymentMethodsFragmentFactory
 import com.stripe.android.paymentsheet.ui.AnimationConstants
 import com.stripe.android.paymentsheet.viewmodels.BaseSheetViewModel
 
 internal abstract class BaseAddPaymentMethodFragment(
     private val eventReporter: EventReporter
-) : Fragment() {
+) : Fragment(), RepositoryHolder {
     abstract val viewModelFactory: ViewModelProvider.Factory
     abstract val sheetViewModel: BaseSheetViewModel<*>
 
@@ -45,6 +47,8 @@ internal abstract class BaseAddPaymentMethodFragment(
         )
         super.onCreate(savedInstanceState)
     }
+
+    override fun getResourceRepository(): ResourceRepository = sheetViewModel.resourceRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,

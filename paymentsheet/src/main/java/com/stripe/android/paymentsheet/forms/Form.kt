@@ -46,15 +46,12 @@ import com.stripe.android.paymentsheet.specifications.FormItemSpec
 import com.stripe.android.paymentsheet.specifications.IdentifierSpec
 import com.stripe.android.paymentsheet.specifications.LayoutSpec
 import com.stripe.android.paymentsheet.repository.ResourceRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Named
 import javax.inject.Singleton
-
-internal val formElementPadding = 16.dp
 
 @ExperimentalAnimationApi
 @Composable
@@ -219,15 +216,15 @@ class FormViewModel @Inject internal constructor(
     @Named(SAVE_FOR_FUTURE_USE_INITIAL_VALUE) saveForFutureUseInitialValue: Boolean,
     @Named(SAVE_FOR_FUTURE_USE_INITIAL_VISIBILITY) saveForFutureUseInitialVisibility: Boolean,
     merchantName: String,
-    resourceRepository: ResourceRepository
 ) : ViewModel() {
+    var resourceRepository: ResourceRepository? = null
+
     internal class Factory(
         private val resources: Resources,
         private val layout: LayoutSpec,
         private val saveForFutureUseValue: Boolean,
         private val saveForFutureUseVisibility: Boolean,
-        private val merchantName: String,
-        private val resourceRepository: ResourceRepository
+        private val merchantName: String
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
@@ -239,20 +236,18 @@ class FormViewModel @Inject internal constructor(
                 .saveForFutureUseValue(saveForFutureUseValue)
                 .saveForFutureUseVisibility(saveForFutureUseVisibility)
                 .merchantName(merchantName)
-                .resourceLoadingContext(Dispatchers.IO)
-                .resourceRepository(resourceRepository)
                 .build()
                 .viewModel as T
         }
     }
 
-    private val transformSpecToElement = TransformSpecToElement(resourceRepository)
+    private val transformSpecToElement = TransformSpecToElement(resourceRepository!!)
 
     internal val elements: List<FormElement> =
         transformSpecToElement.transform(layout.items, merchantName)
 
     init {
-        resourceRepository.addressRepository.get("ZZ")
+        resourceRepository!!.addressRepository.get("ZZ")
         setSaveForFutureUse(saveForFutureUseInitialValue)
     }
 

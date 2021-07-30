@@ -42,8 +42,7 @@ class ComposeFormDataCollectionFragment : Fragment() {
             requireArguments().getBoolean(
                 EXTRA_SAVE_FOR_FUTURE_USE_VISIBILITY
             ),
-            requireNotNull(requireArguments().getString(EXTRA_MERCHANT_NAME)),
-            (activity as RepositoryHolder).getResourceRepository()
+            requireNotNull(requireArguments().getString(EXTRA_MERCHANT_NAME))
         )
     }
 
@@ -57,6 +56,10 @@ class ComposeFormDataCollectionFragment : Fragment() {
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
+
+
+        formViewModel.resourceRepository =
+            (parentFragment as RepositoryHolder).getResourceRepository()
 
         setContent {
             StripeTheme {

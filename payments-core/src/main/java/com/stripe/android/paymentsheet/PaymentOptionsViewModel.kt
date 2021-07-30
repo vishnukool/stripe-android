@@ -10,6 +10,8 @@ import com.stripe.android.paymentsheet.analytics.DefaultEventReporter
 import com.stripe.android.paymentsheet.analytics.EventReporter
 import com.stripe.android.paymentsheet.model.FragmentConfig
 import com.stripe.android.paymentsheet.model.PaymentSelection
+import com.stripe.android.paymentsheet.repository.BankRepository
+import com.stripe.android.paymentsheet.repository.ResourceRepository
 import com.stripe.android.paymentsheet.viewmodels.BaseSheetViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
@@ -19,12 +21,14 @@ internal class PaymentOptionsViewModel(
     prefsRepository: PrefsRepository,
     private val eventReporter: EventReporter,
     workContext: CoroutineContext,
-    application: Application
+    application: Application,
+    resourceRepository: ResourceRepository
 ) : BaseSheetViewModel<PaymentOptionsViewModel.TransitionTarget>(
     config = args.config,
     prefsRepository = prefsRepository,
     workContext = workContext,
-    application = application
+    application = application,
+    resourceRepository = resourceRepository
 ) {
     @VisibleForTesting
     internal val _paymentOptionResult = MutableLiveData<PaymentOptionResult>()
@@ -139,7 +143,8 @@ internal class PaymentOptionsViewModel(
                     application
                 ),
                 workContext = Dispatchers.IO,
-                application = application
+                application = application,
+                resourceRepository = sheet
             ) as T
         }
     }

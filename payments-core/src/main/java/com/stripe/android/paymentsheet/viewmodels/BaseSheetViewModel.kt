@@ -23,6 +23,7 @@ import com.stripe.android.paymentsheet.model.PaymentSelection
 import com.stripe.android.paymentsheet.model.SavedSelection
 import com.stripe.android.paymentsheet.model.SupportedPaymentMethod
 import com.stripe.android.paymentsheet.paymentdatacollection.CardDataCollectionFragment
+import com.stripe.android.paymentsheet.repository.ResourceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -36,6 +37,7 @@ internal abstract class BaseSheetViewModel<TransitionTargetType>(
     application: Application,
     internal val config: PaymentSheet.Configuration?,
     protected val prefsRepository: PrefsRepository,
+    val resourceRepository: ResourceRepository,
     protected val workContext: CoroutineContext = Dispatchers.IO
 ) : AndroidViewModel(application) {
     internal val customerConfig = config?.customer
@@ -166,7 +168,7 @@ internal abstract class BaseSheetViewModel<TransitionTargetType>(
         stripeIntent.value?.let { stripeIntent ->
             return stripeIntent.paymentMethodTypes.mapNotNull {
                 SupportedPaymentMethod.fromCode(it)
-            }.filter { it == SupportedPaymentMethod.Card }
+            }//.filter { it == SupportedPaymentMethod.Card }
         }
 
         return emptyList()

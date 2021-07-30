@@ -36,12 +36,6 @@ internal interface FormViewModelComponent {
         @BindsInstance
         fun resources(resources: Resources): Builder
 
-        @BindsInstance
-        fun resourceLoadingContext(workContext: CoroutineContext): Builder
-
-        @BindsInstance
-        fun resourceRepository(resources: ResourceRepository): Builder
-
         fun build(): FormViewModelComponent
     }
 }

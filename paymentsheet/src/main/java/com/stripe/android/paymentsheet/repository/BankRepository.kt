@@ -11,7 +11,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal data class BankRepository @Inject internal constructor(
+data class BankRepository @Inject internal constructor(
     val resources: Resources
 ) {
     private val bankItemMap = mutableMapOf<SupportedBankType, List<DropdownItem>?>()

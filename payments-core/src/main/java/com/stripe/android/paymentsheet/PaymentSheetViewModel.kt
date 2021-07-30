@@ -90,11 +90,12 @@ internal class PaymentSheetViewModel @Inject internal constructor(
     private val logger: Logger,
     @IOContext workContext: CoroutineContext,
     private val paymentController: PaymentController,
-    private val resourceRepository: ResourceRepository
+    resourceRepository: ResourceRepository
 ) : BaseSheetViewModel<PaymentSheetViewModel.TransitionTarget>(
     application = application,
     config = args.config,
     prefsRepository = prefsRepository,
+    resourceRepository = resourceRepository,
     workContext = workContext
 ) {
 
@@ -126,8 +127,6 @@ internal class PaymentSheetViewModel @Inject internal constructor(
         }
         return outputLiveData
     }
-
-    fun getResourceRepository(): ResourceRepository = resourceRepository
 
     // Holds a reference to the last selected payment method while checking out with Google Pay.
     // If Google Pay is cancelled or fails, it will be set again as the selected payment method.
