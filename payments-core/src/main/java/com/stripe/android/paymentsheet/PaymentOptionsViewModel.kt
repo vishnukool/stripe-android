@@ -10,7 +10,6 @@ import com.stripe.android.paymentsheet.analytics.DefaultEventReporter
 import com.stripe.android.paymentsheet.analytics.EventReporter
 import com.stripe.android.paymentsheet.model.FragmentConfig
 import com.stripe.android.paymentsheet.model.PaymentSelection
-import com.stripe.android.paymentsheet.repository.BankRepository
 import com.stripe.android.paymentsheet.repository.ResourceRepository
 import com.stripe.android.paymentsheet.viewmodels.BaseSheetViewModel
 import kotlinx.coroutines.Dispatchers

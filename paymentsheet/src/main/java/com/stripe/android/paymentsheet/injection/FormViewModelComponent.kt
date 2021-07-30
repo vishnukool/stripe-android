@@ -2,13 +2,11 @@ package com.stripe.android.paymentsheet.injection
 
 import android.content.res.Resources
 import com.stripe.android.paymentsheet.forms.FormViewModel
-import com.stripe.android.paymentsheet.repository.ResourceRepository
 import com.stripe.android.paymentsheet.specifications.LayoutSpec
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Named
 import javax.inject.Singleton
-import kotlin.coroutines.CoroutineContext
 
 @Singleton
 @Component

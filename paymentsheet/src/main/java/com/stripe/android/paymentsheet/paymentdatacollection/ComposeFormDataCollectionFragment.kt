@@ -57,7 +57,6 @@ class ComposeFormDataCollectionFragment : Fragment() {
             ViewGroup.LayoutParams.MATCH_PARENT
         )
 
-
         formViewModel.resourceRepository =
             (parentFragment as RepositoryHolder).getResourceRepository()
 
