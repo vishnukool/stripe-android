@@ -153,7 +153,6 @@ internal abstract class BaseAddPaymentMethodFragment(
 
     @VisibleForTesting
     internal fun onPaymentMethodSelected(paymentMethod: SupportedPaymentMethod) {
-
         // hide the soft keyboard.
         ViewCompat.getWindowInsetsController(requireView())
             ?.hide(WindowInsetsCompat.Type.ime())
