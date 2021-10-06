@@ -292,7 +292,24 @@ class PaymentSheet internal constructor(
          * The three-letter ISO 4217 alphabetic currency code, e.g. "USD" or "EUR".
          * Required in order to support Google Pay when processing a Setup Intent.
          */
-        val currencyCode: String? = null
+        val currencyCode: String? = null,
+        /**
+         * Flag to indicate whether Google Pay collect the customer's email address.
+         *
+         * Defaults to `false`.
+         */
+        val isEmailRequired: Boolean = false,
+        /**
+         * Billing address collection configuration.
+         */
+        val billingAddressConfig: BillingAddressConfig = BillingAddressConfig(),
+        /**
+         * If `true`, Google Pay is considered ready only if the customer's Google Pay wallet
+         * has existing payment methods.
+         *
+         * Defaults to `true`.
+         */
+        val existingPaymentMethodRequired: Boolean = true
     ) : Parcelable {
         constructor(
             environment: Environment,
@@ -302,6 +319,99 @@ class PaymentSheet internal constructor(
         enum class Environment {
             Production,
             Test
+        }
+
+        /**
+         * Billing address collection configuration for Google Pay.
+         *
+         * See [Google Pay's documentation](https://developers.google.com/pay/api/android/reference/request-objects#BillingAddressParameters).
+         */
+        @Parcelize
+        data class BillingAddressConfig(
+            /**
+             * Set to true if you require a billing address. A billing address should only be
+             * requested if it's required to process the transaction. Additional data requests can
+             * increase friction in the checkout process and lead to a lower conversion rate.
+             */
+            val isRequired: Boolean = false,
+
+            /**
+             * Billing address format required to complete the transaction.
+             */
+            val format: Format = Format.Min,
+
+            /**
+             * Set to true if a phone number is required to process the transaction.
+             */
+            val isPhoneNumberRequired: Boolean = false
+        ) : Parcelable {
+            /**
+             * Billing address format required to complete the transaction.
+             */
+            enum class Format {
+                /**
+                 * Name, country code, and postal code (default).
+                 */
+                Min,
+
+                /**
+                 * Name, street address, locality, region, country code, and postal code.
+                 */
+                Full
+            }
+
+            /**
+             * [BillingAddressConfig] builder for cleaner object creation from Java.
+             */
+            class Builder {
+                private var isRequired: Boolean = false
+                private var format: Format = Format.Min
+                private var isPhoneNumberRequired: Boolean = false
+
+                fun isRequired(isRequired: Boolean) = apply { this.isRequired = isRequired }
+                fun format(format: Format) = apply { this.format = format }
+                fun isPhoneNumberRequired(isPhoneNumberRequired: Boolean) =
+                    apply { this.isPhoneNumberRequired = isPhoneNumberRequired }
+
+                fun build() = BillingAddressConfig(isRequired, format, isPhoneNumberRequired)
+            }
+        }
+
+        /**
+         * [GooglePayConfiguration] builder for cleaner object creation from Java.
+         */
+        class Builder(
+            private var environment: Environment,
+            private var countryCode: String
+        ) {
+            private var currencyCode: String? = null
+            private var isEmailRequired: Boolean = false
+            private var billingAddressConfig: BillingAddressConfig = BillingAddressConfig()
+            private var existingPaymentMethodRequired: Boolean = true
+
+            fun environment(environment: Environment) = apply { this.environment = environment }
+            fun countryCode(countryCode: String) = apply { this.countryCode = countryCode }
+            fun currencyCode(currencyCode: String?) = apply { this.currencyCode = currencyCode }
+            fun isEmailRequired(isEmailRequired: Boolean) =
+                apply { this.isEmailRequired = isEmailRequired }
+
+            fun billingAddressConfig(billingAddressConfig: BillingAddressConfig) =
+                apply { this.billingAddressConfig = billingAddressConfig }
+
+            fun billingAddressConfig(billingAddressConfigBuilder: BillingAddressConfig.Builder) =
+                apply { this.billingAddressConfig = billingAddressConfigBuilder.build() }
+
+            fun existingPaymentMethodRequired(existingPaymentMethodRequired: Boolean) =
+                apply { this.existingPaymentMethodRequired = existingPaymentMethodRequired }
+
+            fun build() = GooglePayConfiguration(
+                environment,
+                countryCode,
+                currencyCode,
+                isEmailRequired,
+                billingAddressConfig,
+                existingPaymentMethodRequired
+            )
         }
     }
 

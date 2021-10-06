@@ -1,7 +1,7 @@
 package com.stripe.android.paymentsheet.injection
 
 import android.app.Application
-import com.stripe.android.googlepaylauncher.injection.GooglePayLauncherModule
+import com.stripe.android.googlepaylauncher.injection.GooglePayRepositoryModule
 import com.stripe.android.payments.core.injection.CoroutineContextModule
 import com.stripe.android.payments.core.injection.InjectorKey
 import com.stripe.android.payments.core.injection.LoggingModule
@@ -18,7 +18,7 @@ import javax.inject.Singleton
         StripeRepositoryModule::class,
         PaymentSheetCommonModule::class,
         PaymentSheetLauncherModule::class,
-        GooglePayLauncherModule::class,
+        GooglePayRepositoryModule::class,
         CoroutineContextModule::class,
         LoggingModule::class
     ]

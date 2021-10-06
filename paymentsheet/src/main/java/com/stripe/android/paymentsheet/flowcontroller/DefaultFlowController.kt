@@ -38,6 +38,7 @@ import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
 import com.stripe.android.paymentsheet.PaymentSheetResultCallback
 import com.stripe.android.paymentsheet.analytics.EventReporter
+import com.stripe.android.paymentsheet.convertToLauncherParams
 import com.stripe.android.paymentsheet.elements.ResourceRepository
 import com.stripe.android.paymentsheet.forms.FormViewModel
 import com.stripe.android.paymentsheet.injection.DaggerFlowControllerComponent
@@ -416,7 +417,10 @@ internal class DefaultFlowController @Inject internal constructor(
                     GooglePayEnvironment.Test
             },
             merchantCountryCode = googlePayConfig.countryCode,
-            merchantName = config.merchantDisplayName
+            merchantName = config.merchantDisplayName,
+            isEmailRequired = googlePayConfig.isEmailRequired,
+            billingAddressConfig = googlePayConfig.billingAddressConfig.convertToLauncherParams(),
+            existingPaymentMethodRequired = googlePayConfig.existingPaymentMethodRequired
         )
 
         googlePayPaymentMethodLauncherFactory.create(

@@ -9,6 +9,7 @@ import androidx.annotation.IntDef
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.stripe.android.BuildConfig
+import com.stripe.android.GooglePayJsonFactory
 import com.stripe.android.Logger
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.googlepaylauncher.GooglePayPaymentMethodLauncher.Result
@@ -56,7 +57,7 @@ class GooglePayPaymentMethodLauncher @AssistedInject internal constructor(
     @Assisted private val activityResultLauncher: ActivityResultLauncher<GooglePayPaymentMethodLauncherContract.Args>,
     @Assisted private val skipReadyCheck: Boolean,
     context: Context,
-    private val googlePayRepositoryFactory: (GooglePayEnvironment) -> GooglePayRepository,
+    private val googlePayRepositoryFactory: (GooglePayEnvironment, GooglePayJsonFactory.BillingAddressParameters, Boolean) -> GooglePayRepository,
     @Named(PRODUCT_USAGE) private val productUsage: Set<String>,
     @Named(PUBLISHABLE_KEY) private val publishableKeyProvider: () -> String,
     @Named(STRIPE_ACCOUNT_ID) private val stripeAccountIdProvider: () -> String?,
@@ -178,12 +179,12 @@ class GooglePayPaymentMethodLauncher @AssistedInject internal constructor(
         },
         false,
         context,
-        googlePayRepositoryFactory = {
+        googlePayRepositoryFactory = { environment, billingAddressParameters, existingPaymentMethodRequired ->
             DefaultGooglePayRepository(
                 context,
-                config.environment,
-                config.billingAddressConfig.convert(),
-                config.existingPaymentMethodRequired
+                environment,
+                billingAddressParameters,
+                existingPaymentMethodRequired
             )
         },
         productUsage = setOf(PRODUCT_USAGE_TOKEN),
@@ -200,7 +201,11 @@ class GooglePayPaymentMethodLauncher @AssistedInject internal constructor(
 
         if (!skipReadyCheck) {
             lifecycleScope.launch {
-                val repository = googlePayRepositoryFactory(config.environment)
+                val repository = googlePayRepositoryFactory(
+                    config.environment,
+                    config.billingAddressConfig.convert(),
+                    config.existingPaymentMethodRequired
+                )
                 readyCallback.onReady(
                     repository.isReady().first().also {
                         isReady = it

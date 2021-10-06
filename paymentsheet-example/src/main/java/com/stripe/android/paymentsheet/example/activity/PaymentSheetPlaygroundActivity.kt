@@ -13,6 +13,7 @@ import com.stripe.android.paymentsheet.example.databinding.ActivityPaymentSheetP
 import com.stripe.android.paymentsheet.example.repository.Repository
 import com.stripe.android.paymentsheet.example.viewmodel.PaymentSheetPlaygroundViewModel
 import com.stripe.android.paymentsheet.model.PaymentOption
+import com.stripe.android.paymentsheet.PaymentSheet.GooglePayConfiguration.BillingAddressConfig
 import kotlinx.coroutines.launch
 
 internal class PaymentSheetPlaygroundActivity : AppCompatActivity() {
@@ -43,7 +44,14 @@ internal class PaymentSheetPlaygroundActivity : AppCompatActivity() {
                 PaymentSheet.GooglePayConfiguration(
                     environment = PaymentSheet.GooglePayConfiguration.Environment.Test,
                     countryCode = "US",
-                    currencyCode = currency.value
+                    currencyCode = currency.value,
+                    isEmailRequired = true,
+                    billingAddressConfig = BillingAddressConfig(
+                        isRequired = true,
+                        format = BillingAddressConfig.Format.Full,
+                        isPhoneNumberRequired = true
+                    ),
+                    existingPaymentMethodRequired = false
                 )
             }
             else -> null

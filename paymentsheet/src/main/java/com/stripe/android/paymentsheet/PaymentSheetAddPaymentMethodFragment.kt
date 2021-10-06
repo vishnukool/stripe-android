@@ -68,7 +68,7 @@ internal class PaymentSheetAddPaymentMethodFragment(
                 }
 
                 updateErrorMessage(viewState?.errorMessage)
-                googlePayButton.updateState(viewState?.convert())
+                googlePayButton.updateState(viewState?.convertToLauncherParams())
             }
 
         sheetViewModel.processing.observe(viewLifecycleOwner) { isProcessing ->

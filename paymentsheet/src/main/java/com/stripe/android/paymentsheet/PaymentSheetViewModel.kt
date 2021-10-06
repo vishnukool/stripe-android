@@ -59,7 +59,7 @@ import kotlin.coroutines.CoroutineContext
  * This is used by both the [PaymentSheetActivity] and the [PaymentSheetAddPaymentMethodFragment]
  * classes to convert a [PaymentSheetViewState] to a [PrimaryButton.State]
  */
-internal fun PaymentSheetViewState.convert(): PrimaryButton.State {
+internal fun PaymentSheetViewState.convertToLauncherParams(): PrimaryButton.State {
     return when (this) {
         is PaymentSheetViewState.Reset ->
             PrimaryButton.State.Ready
@@ -155,7 +155,10 @@ internal class PaymentSheetViewModel @Inject internal constructor(
                             GooglePayEnvironment.Test
                     },
                     merchantCountryCode = config.countryCode,
-                    merchantName = merchantName
+                    merchantName = merchantName,
+                    isEmailRequired = config.isEmailRequired,
+                    billingAddressConfig = config.billingAddressConfig.convertToLauncherParams(),
+                    existingPaymentMethodRequired = config.existingPaymentMethodRequired
                 )
             }
         }

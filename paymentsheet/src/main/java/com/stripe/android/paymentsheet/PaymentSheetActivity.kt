@@ -73,12 +73,12 @@ internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>() {
 
     private val buyButtonStateObserver = { viewState: PaymentSheetViewState? ->
         updateErrorMessage(viewState?.errorMessage)
-        viewBinding.buyButton.updateState(viewState?.convert())
+        viewBinding.buyButton.updateState(viewState?.convertToLauncherParams())
     }
 
     private val googlePayButtonStateObserver = { viewState: PaymentSheetViewState? ->
         updateErrorMessage(viewState?.errorMessage)
-        viewBinding.googlePayButton.updateState(viewState?.convert())
+        viewBinding.googlePayButton.updateState(viewState?.convertToLauncherParams())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
