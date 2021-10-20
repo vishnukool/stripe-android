@@ -1,6 +1,5 @@
 package com.stripe.android.paymentsheet.example.activity
 
-import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
@@ -37,45 +36,41 @@ import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
 import com.stripe.android.paymentsheet.example.R
-import com.stripe.android.paymentsheet.example.repository.Repository
 import com.stripe.android.paymentsheet.example.viewmodel.PaymentSheetViewModel
 
 internal abstract class BasePaymentSheetActivity : AppCompatActivity() {
-    protected val viewModel: PaymentSheetViewModel by viewModels {
-        PaymentSheetViewModel.Factory(
-            application
-        )
+    protected val viewModel: PaymentSheetViewModel by lazy {
+        PaymentSheetViewModel(application)
     }
 
-    protected fun prepareCheckout(
-        onSuccess: (PaymentSheet.CustomerConfiguration?, String) -> Unit
-    ) {
-        viewModel.prepareCheckout(
-            Repository.CheckoutCustomer.Returning,
-            Repository.CheckoutMode.Payment
-        )
-            .observe(this) { checkoutResponse ->
-                if (checkoutResponse != null) {
-                    // Init PaymentConfiguration with the publishable key returned from the backend,
-                    // which will be used on all Stripe API calls
-                    PaymentConfiguration.init(this, checkoutResponse.publishableKey)
+        protected fun prepareCheckout(
+            onSuccess: (PaymentSheet.CustomerConfiguration?, String) -> Unit
+        ) {
+            viewModel.prepareCheckout(backendUrl)
 
-                    onSuccess(
-                        checkoutResponse.makeCustomerConfig(),
-                        checkoutResponse.intentClientSecret
-                    )
-                }
+            viewModel.exampleCheckoutResponse.observe(this) { checkoutResponse ->
+                // Init PaymentConfiguration with the publishable key returned from the backend,
+                // which will be used on all Stripe API calls
+                PaymentConfiguration.init(this, checkoutResponse.publishableKey)
+
+                onSuccess(
+                    checkoutResponse.makeCustomerConfig(),
+                    checkoutResponse.paymentIntent
+                )
+
+                viewModel.exampleCheckoutResponse.removeObservers(this)
             }
-    }
+        }
 
-    protected open fun onPaymentSheetResult(
-        paymentResult: PaymentSheetResult
-    ) {
-        viewModel.status.value = paymentResult.toString()
-    }
+        protected open fun onPaymentSheetResult(
+            paymentResult: PaymentSheetResult
+        ) {
+            viewModel.status.value = paymentResult.toString()
+        }
 
-    companion object {
+        companion object {
         const val merchantName = "Example, Inc."
+        const val backendUrl = "https://stripe-mobile-payment-sheet.glitch.me/checkout"
         val googlePayConfig = PaymentSheet.GooglePayConfiguration(
             environment = PaymentSheet.GooglePayConfiguration.Environment.Test,
             countryCode = "US"
