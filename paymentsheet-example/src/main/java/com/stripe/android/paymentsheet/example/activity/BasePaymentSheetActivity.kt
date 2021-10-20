@@ -62,13 +62,13 @@ internal abstract class BasePaymentSheetActivity : AppCompatActivity() {
             }
         }
 
-        protected open fun onPaymentSheetResult(
-            paymentResult: PaymentSheetResult
-        ) {
-            viewModel.status.value = paymentResult.toString()
-        }
+    protected open fun onPaymentSheetResult(
+        paymentResult: PaymentSheetResult
+    ) {
+        viewModel.status.value = paymentResult.toString()
+    }
 
-        companion object {
+    companion object {
         const val merchantName = "Example, Inc."
         const val backendUrl = "https://stripe-mobile-payment-sheet.glitch.me/checkout"
         val googlePayConfig = PaymentSheet.GooglePayConfiguration(
