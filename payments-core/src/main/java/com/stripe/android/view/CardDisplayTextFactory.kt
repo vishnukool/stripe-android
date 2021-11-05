@@ -25,16 +25,8 @@ internal class CardDisplayTextFactory internal constructor(
         isSelected: Boolean
     ): SpannableString {
         val brandText: String = brand.displayName
-        val brandLength = brandText.length
         if (last4.isNullOrBlank()) {
-            val displayString = SpannableString(brandText)
-            setSpan(
-                displayString,
-                TypefaceSpan("sans-serif-medium"),
-                0,
-                brandLength
-            )
-            return displayString
+            return defaultFormat(brandText)
         }
 
         val cardEndingIn = resources.getString(R.string.card_ending_in, brandText, last4)
@@ -45,6 +37,11 @@ internal class CardDisplayTextFactory internal constructor(
         val brandEnd = brandStart + brandText.length
         @ColorInt val textColor = themeConfig.getTextColor(isSelected)
         @ColorInt val lightTextColor = themeConfig.getTextAlphaColor(isSelected)
+
+        if (cardEndingIn.isBlank() || last4Start < 0 || brandStart < 0) {
+            // Safely return just "Brand last4" in case there's any issue with the string resource.
+            return defaultFormat("$brandText $last4")
+        }
 
         val displayString = SpannableString(cardEndingIn)
 
@@ -107,6 +104,15 @@ internal class CardDisplayTextFactory internal constructor(
             start,
             end,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+    }
+
+    private fun defaultFormat(text: String) = SpannableString(text).also {
+        setSpan(
+            it,
+            TypefaceSpan("sans-serif-medium"),
+            0,
+            text.length
         )
     }
 }
