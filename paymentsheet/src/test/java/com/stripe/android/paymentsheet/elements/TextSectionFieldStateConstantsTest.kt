@@ -1,8 +1,7 @@
 package com.stripe.android.paymentsheet.elements
 
 import com.google.common.truth.Truth.assertThat
-import com.stripe.android.paymentsheet.elements.TextFieldStateConstants.Error
-import com.stripe.android.paymentsheet.elements.TextFieldStateConstants.Valid
+import com.stripe.android.ui.core.TextFieldStateConstants.Valid
 import org.junit.Test
 
 class TextSectionFieldStateConstantsTest {

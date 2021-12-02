@@ -12,10 +12,10 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.stripe.android.paymentsheet.StripeTheme
-import com.stripe.android.paymentsheet.elements.Form
 import com.stripe.android.paymentsheet.forms.FormViewModel
 import com.stripe.android.paymentsheet.model.SupportedPaymentMethod
+import com.stripe.android.ui.core.StripeTheme
+import com.stripe.android.ui.core.elements.Form
 
 /**
  * Fragment that displays a form for payment data collection based on the [SupportedPaymentMethod]
@@ -63,7 +63,11 @@ internal class ComposeFormDataCollectionFragment : Fragment() {
         setContent {
             StripeTheme {
                 Column(Modifier.fillMaxSize()) {
-                    Form(formViewModel)
+                    Form(
+                        formViewModel.hiddenIdentifiers,
+                        formViewModel.enabled,
+                        formViewModel.elements
+                    )
                 }
             }
         }

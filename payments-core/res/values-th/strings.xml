@@ -30,18 +30,10 @@
   <string name="address_label_address_optional">ที่อยู่ (ระบุหรือไม่ก็ได้) </string>
   <!-- Label for input requesting apartment number (address line 2) where input is optional, used for US based addresses -->
   <string name="address_label_apt_optional">อพาร์ตเมนต์ (ระบุหรือไม่ก็ได้)</string>
-  <!-- Caption for City field on address form -->
-  <string name="address_label_city">เมือง</string>
   <!-- Label for input requesting city where input is optional, used for all locations -->
   <string name="address_label_city_optional">เมือง (ระบุหรือไม่ก็ได้)</string>
-  <!-- Caption for Country field on address form -->
-  <string name="address_label_country">ประเทศ</string>
-  <!-- Caption for County field on address form (only countries that use county, like United Kingdom) -->
-  <string name="address_label_county">เคาน์ตี</string>
   <!-- Label for input requesting county where input is optional , used for UK based addresses -->
   <string name="address_label_county_optional">เคาน์ตี (ระบุหรือไม่ก็ได้)</string>
-  <!-- Caption for Name field on address form -->
-  <string name="address_label_name">ชื่อ</string>
   <!-- Label for input requesting phone number, used for all locations -->
   <string name="address_label_phone_number">หมายเลขโทรศัพท์</string>
   <!-- Label for input requesting phone number where input is optional, used for all locations -->
@@ -54,20 +46,14 @@
   <string name="address_label_postcode">รหัสไปรษณีย์</string>
   <!-- Label for input requesting postcode where input is optional, used for UK based addresses -->
   <string name="address_label_postcode_optional">รหัสไปรษณีย์ (ระบุหรือไม่ก็ได้)</string>
-  <!-- Caption for Province field on address form (only countries that use province, like Canada) -->
-  <string name="address_label_province">จังหวัด</string>
   <!-- Label for input requesting province where province is optional, used for canadian addresses -->
   <string name="address_label_province_optional">จังหวัด (ระบุหรือไม่ก็ได้)</string>
   <!-- Label for input requesting the region, used for international addresses -->
   <string name="address_label_region_generic">รัฐ / จังหวัด / ภูมิภาค</string>
   <!-- Label for input requesting the region where input is optional, used for international addresses -->
   <string name="address_label_region_generic_optional">รัฐ / จังหวัด / ภูมิภาค (ระบุหรือไม่ก็ได้)</string>
-  <!-- Caption for State field on address form (only countries that use state , like United States) -->
-  <string name="address_label_state">รัฐ</string>
   <!-- Label for input requesting state where input is optional, used for US based addresses -->
   <string name="address_label_state_optional">รัฐ (ระบุหรือไม่ก็ได้)</string>
-  <!-- Label for input requesting zip code, used for US based addreses -->
-  <string name="address_label_zip_code">รหัสไปรษณีย์</string>
   <!-- Label for input requesting zip code where input is optional, used for US based addresses -->
   <string name="address_label_zip_code_optional">รหัสไปรษณีย์ (ระบุหรือไม่ก็ได้)</string>
   <!-- Label for input requesting postal code, used for international addresses -->

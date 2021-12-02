@@ -46,6 +46,7 @@ import com.stripe.android.paymentsheet.forms.SepaDebitRequirement
 import com.stripe.android.paymentsheet.forms.SofortForm
 import com.stripe.android.paymentsheet.forms.SofortParamKey
 import com.stripe.android.paymentsheet.forms.SofortRequirement
+import com.stripe.android.ui.core.elements.LayoutSpec
 
 /**
  * Enum defining all payment method types for which Payment Sheet can collect

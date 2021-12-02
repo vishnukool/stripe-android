@@ -2,11 +2,11 @@ package com.stripe.android.paymentsheet.forms
 
 import com.google.common.truth.Truth.assertThat
 import com.stripe.android.paymentsheet.elements.EmailElement
-import com.stripe.android.paymentsheet.elements.EmailConfig
-import com.stripe.android.paymentsheet.elements.SectionController
+import com.stripe.android.ui.core.elements.EmailConfig
+import com.stripe.android.ui.core.elements.SectionController
 import com.stripe.android.paymentsheet.elements.SectionElement
-import com.stripe.android.paymentsheet.elements.TextFieldController
-import com.stripe.android.paymentsheet.elements.IdentifierSpec
+import com.stripe.android.ui.core.elements.TextFieldController
+import com.stripe.android.ui.core.elements.IdentifierSpec
 import com.stripe.android.paymentsheet.model.PaymentSelection
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,22 +17,22 @@ import org.junit.Test
 @ExperimentalCoroutinesApi
 class CompleteFormFieldValueFilterTest {
 
-    private val emailController = TextFieldController(EmailConfig())
+    private val emailController = com.stripe.android.ui.core.elements.TextFieldController(com.stripe.android.ui.core.elements.EmailConfig())
     private val emailSection = SectionElement(
-        identifier = IdentifierSpec.Generic("email_section"),
+        identifier = com.stripe.android.ui.core.elements.IdentifierSpec.Generic("email_section"),
         EmailElement(
-            IdentifierSpec.Email,
+            com.stripe.android.ui.core.elements.IdentifierSpec.Email,
             emailController
         ),
-        SectionController(emailController.label, listOf(emailController))
+        com.stripe.android.ui.core.elements.SectionController(emailController.label, listOf(emailController))
     )
 
-    private val hiddenIdentifersFlow = MutableStateFlow<List<IdentifierSpec>>(emptyList())
+    private val hiddenIdentifersFlow = MutableStateFlow<List<com.stripe.android.ui.core.elements.IdentifierSpec>>(emptyList())
 
     private val fieldFlow = MutableStateFlow(
         mapOf(
-            IdentifierSpec.Country to FormFieldEntry("US", true),
-            IdentifierSpec.Email to FormFieldEntry("email@email.com", false),
+            com.stripe.android.ui.core.elements.IdentifierSpec.Country to FormFieldEntry("US", true),
+            com.stripe.android.ui.core.elements.IdentifierSpec.Email to FormFieldEntry("email@email.com", false),
         )
     )
 
@@ -55,33 +55,33 @@ class CompleteFormFieldValueFilterTest {
         runBlockingTest {
             fieldFlow.value =
                 mapOf(
-                    IdentifierSpec.Country to FormFieldEntry("US", true),
-                    IdentifierSpec.Email to FormFieldEntry("email@email.com", true),
+                    com.stripe.android.ui.core.elements.IdentifierSpec.Country to FormFieldEntry("US", true),
+                    com.stripe.android.ui.core.elements.IdentifierSpec.Email to FormFieldEntry("email@email.com", true),
                 )
 
             val formFieldValue = transformElementToFormFieldValueFlow.filterFlow().first()
 
             assertThat(formFieldValue).isNotNull()
             assertThat(formFieldValue?.fieldValuePairs)
-                .containsKey(IdentifierSpec.Email)
+                .containsKey(com.stripe.android.ui.core.elements.IdentifierSpec.Email)
             assertThat(formFieldValue?.fieldValuePairs)
-                .containsKey(IdentifierSpec.Country)
+                .containsKey(com.stripe.android.ui.core.elements.IdentifierSpec.Country)
         }
     }
 
     @Test
     fun `If an hidden field is incomplete field pairs have the non-hidden values`() {
         runBlockingTest {
-            hiddenIdentifersFlow.value = listOf(IdentifierSpec.Email)
+            hiddenIdentifersFlow.value = listOf(com.stripe.android.ui.core.elements.IdentifierSpec.Email)
 
             val formFieldValues = transformElementToFormFieldValueFlow.filterFlow()
 
             val formFieldValue = formFieldValues.first()
             assertThat(formFieldValue).isNotNull()
             assertThat(formFieldValue?.fieldValuePairs)
-                .doesNotContainKey(IdentifierSpec.Email)
+                .doesNotContainKey(com.stripe.android.ui.core.elements.IdentifierSpec.Email)
             assertThat(formFieldValue?.fieldValuePairs)
-                .containsKey(IdentifierSpec.Country)
+                .containsKey(com.stripe.android.ui.core.elements.IdentifierSpec.Country)
         }
     }
 
@@ -90,8 +90,8 @@ class CompleteFormFieldValueFilterTest {
         runBlockingTest {
             fieldFlow.value =
                 mapOf(
-                    IdentifierSpec.Country to FormFieldEntry("US", true),
-                    IdentifierSpec.Email to FormFieldEntry("email@email.com", true),
+                    com.stripe.android.ui.core.elements.IdentifierSpec.Country to FormFieldEntry("US", true),
+                    com.stripe.android.ui.core.elements.IdentifierSpec.Email to FormFieldEntry("email@email.com", true),
                 )
 
             hiddenIdentifersFlow.value = listOf(emailSection.fields[0].identifier)
@@ -100,9 +100,9 @@ class CompleteFormFieldValueFilterTest {
 
             assertThat(formFieldValue).isNotNull()
             assertThat(formFieldValue?.fieldValuePairs)
-                .doesNotContainKey(IdentifierSpec.Email)
+                .doesNotContainKey(com.stripe.android.ui.core.elements.IdentifierSpec.Email)
             assertThat(formFieldValue?.fieldValuePairs)
-                .containsKey(IdentifierSpec.Country)
+                .containsKey(com.stripe.android.ui.core.elements.IdentifierSpec.Country)
         }
     }
 }

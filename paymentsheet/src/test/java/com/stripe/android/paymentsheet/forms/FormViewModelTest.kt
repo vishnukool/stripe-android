@@ -17,7 +17,7 @@ import com.stripe.android.paymentsheet.elements.AddressElement
 import com.stripe.android.paymentsheet.elements.BankRepository
 import com.stripe.android.paymentsheet.elements.CountrySpec
 import com.stripe.android.paymentsheet.elements.EmailSpec
-import com.stripe.android.paymentsheet.elements.IdentifierSpec
+import com.stripe.android.ui.core.elements.IdentifierSpec
 import com.stripe.android.paymentsheet.elements.LayoutSpec
 import com.stripe.android.paymentsheet.elements.ResourceRepository
 import com.stripe.android.paymentsheet.elements.RowElement
@@ -27,7 +27,7 @@ import com.stripe.android.paymentsheet.elements.SectionElement
 import com.stripe.android.paymentsheet.elements.SectionSingleFieldElement
 import com.stripe.android.paymentsheet.elements.SectionSpec
 import com.stripe.android.paymentsheet.elements.SimpleTextSpec.Companion.NAME
-import com.stripe.android.paymentsheet.elements.TextFieldController
+import com.stripe.android.ui.core.elements.TextFieldController
 import com.stripe.android.paymentsheet.injection.FormViewModelSubcomponent
 import com.stripe.android.paymentsheet.model.PaymentSelection
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -51,9 +51,9 @@ import javax.inject.Provider
 @RunWith(RobolectricTestRunner::class)
 internal class FormViewModelTest {
     private val emailSection =
-        SectionSpec(IdentifierSpec.Generic("email_section"), EmailSpec)
+        SectionSpec(com.stripe.android.ui.core.elements.IdentifierSpec.Generic("email_section"), EmailSpec)
     private val countrySection = SectionSpec(
-        IdentifierSpec.Generic("country_section"),
+        com.stripe.android.ui.core.elements.IdentifierSpec.Generic("country_section"),
         CountrySpec()
     )
 
@@ -158,7 +158,7 @@ internal class FormViewModelTest {
             transformSpecToElement = TransformSpecToElement(resourceRepository, args)
         )
 
-        val values = mutableListOf<List<IdentifierSpec>>()
+        val values = mutableListOf<List<com.stripe.android.ui.core.elements.IdentifierSpec>>()
         formViewModel.hiddenIdentifiers.asLiveData()
             .observeForever {
                 values.add(it)
@@ -169,7 +169,7 @@ internal class FormViewModelTest {
 
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
 
-        assertThat(values[1][0]).isEqualTo(IdentifierSpec.SaveForFutureUse)
+        assertThat(values[1][0]).isEqualTo(com.stripe.android.ui.core.elements.IdentifierSpec.SaveForFutureUse)
     }
 
     @Test
@@ -186,7 +186,7 @@ internal class FormViewModelTest {
             transformSpecToElement = TransformSpecToElement(resourceRepository, args)
         )
 
-        val values = mutableListOf<List<IdentifierSpec>>()
+        val values = mutableListOf<List<com.stripe.android.ui.core.elements.IdentifierSpec>>()
         formViewModel.hiddenIdentifiers.asLiveData()
             .observeForever {
                 values.add(it)
@@ -197,8 +197,8 @@ internal class FormViewModelTest {
 
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
 
-        assertThat(values[1][0]).isEqualTo(IdentifierSpec.Generic("email_section"))
-        assertThat(values[1][1]).isEqualTo(IdentifierSpec.Email)
+        assertThat(values[1][0]).isEqualTo(com.stripe.android.ui.core.elements.IdentifierSpec.Generic("email_section"))
+        assertThat(values[1][1]).isEqualTo(com.stripe.android.ui.core.elements.IdentifierSpec.Email)
     }
 
     @ExperimentalCoroutinesApi
@@ -318,12 +318,12 @@ internal class FormViewModelTest {
 
             nameElement?.onValueChange("joe")
             assertThat(
-                formViewModel.completeFormValues.first()?.fieldValuePairs?.get(IdentifierSpec.Name)
+                formViewModel.completeFormValues.first()?.fieldValuePairs?.get(com.stripe.android.ui.core.elements.IdentifierSpec.Name)
             ).isNull()
 
             emailElement?.onValueChange("joe@gmail.com")
             assertThat(
-                formViewModel.completeFormValues.first()?.fieldValuePairs?.get(IdentifierSpec.Email)
+                formViewModel.completeFormValues.first()?.fieldValuePairs?.get(com.stripe.android.ui.core.elements.IdentifierSpec.Email)
                     ?.value
             ).isEqualTo("joe@gmail.com")
             assertThat(
@@ -366,7 +366,7 @@ internal class FormViewModelTest {
                 R.string.address_label_name
             )?.onValueChange("joe")
             assertThat(
-                formViewModel.completeFormValues.first()?.fieldValuePairs?.get(IdentifierSpec.Name)
+                formViewModel.completeFormValues.first()?.fieldValuePairs?.get(com.stripe.android.ui.core.elements.IdentifierSpec.Name)
                     ?.value
             ).isNull()
 
@@ -375,7 +375,7 @@ internal class FormViewModelTest {
                 R.string.email
             )?.onValueChange("joe@gmail.com")
             assertThat(
-                formViewModel.completeFormValues.first()?.fieldValuePairs?.get(IdentifierSpec.Email)
+                formViewModel.completeFormValues.first()?.fieldValuePairs?.get(com.stripe.android.ui.core.elements.IdentifierSpec.Email)
                     ?.value
             ).isNull()
 
@@ -384,7 +384,7 @@ internal class FormViewModelTest {
                 R.string.iban
             )?.onValueChange("DE89370400440532013000")
             assertThat(
-                formViewModel.completeFormValues.first()?.fieldValuePairs?.get(IdentifierSpec.Generic("iban"))
+                formViewModel.completeFormValues.first()?.fieldValuePairs?.get(com.stripe.android.ui.core.elements.IdentifierSpec.Generic("iban"))
                     ?.value
             ).isNull()
 
@@ -501,11 +501,11 @@ internal class FormViewModelTest {
             .flatMap { it.fields }
             .filterIsInstance<SectionSingleFieldElement>()
             .map { it.controller }
-            .filterIsInstance<TextFieldController>()
+            .filterIsInstance<com.stripe.android.ui.core.elements.TextFieldController>()
             .firstOrNull { it.label == label }
 
     private data class AddressControllers(
-        val controllers: List<TextFieldController>
+        val controllers: List<com.stripe.android.ui.core.elements.TextFieldController>
     ) {
         companion object {
             suspend fun create(formViewModel: FormViewModel) =
@@ -540,7 +540,7 @@ internal class FormViewModelTest {
         private suspend fun getAddressSectionTextControllerWithLabel(
             formViewModel: FormViewModel,
             @StringRes label: Int
-        ): TextFieldController? {
+        ): com.stripe.android.ui.core.elements.TextFieldController? {
             val addressElementFields = formViewModel.elements
                 .filterIsInstance<SectionElement>()
                 .flatMap { it.fields }
@@ -550,14 +550,14 @@ internal class FormViewModelTest {
                 ?.first()
             return addressElementFields
                 ?.filterIsInstance<SectionSingleFieldElement>()
-                ?.map { (it.controller as? TextFieldController) }
+                ?.map { (it.controller as? com.stripe.android.ui.core.elements.TextFieldController) }
                 ?.firstOrNull { it?.label == label }
                 ?: addressElementFields
                     ?.asSequence()
                     ?.filterIsInstance<RowElement>()
                     ?.map { it.fields }
                     ?.flatten()
-                    ?.map { (it.controller as? TextFieldController) }
+                    ?.map { (it.controller as? com.stripe.android.ui.core.elements.TextFieldController) }
                     ?.firstOrNull { it?.label == label }
         }
     }

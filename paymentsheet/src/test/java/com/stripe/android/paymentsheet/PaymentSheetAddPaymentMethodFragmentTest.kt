@@ -23,10 +23,9 @@ import com.stripe.android.paymentsheet.analytics.EventReporter
 import com.stripe.android.paymentsheet.databinding.FragmentPaymentsheetAddPaymentMethodBinding
 import com.stripe.android.paymentsheet.databinding.PrimaryButtonBinding
 import com.stripe.android.paymentsheet.databinding.StripeGooglePayButtonBinding
-import com.stripe.android.paymentsheet.elements.IdentifierSpec
 import com.stripe.android.paymentsheet.forms.FormFieldEntry
 import com.stripe.android.paymentsheet.forms.FormFieldValues
-import com.stripe.android.paymentsheet.model.Amount
+import com.stripe.android.ui.core.Amount
 import com.stripe.android.paymentsheet.model.FragmentConfig
 import com.stripe.android.paymentsheet.model.FragmentConfigFixtures
 import com.stripe.android.paymentsheet.model.PaymentSelection
@@ -537,7 +536,7 @@ class PaymentSheetAddPaymentMethodFragmentTest {
     fun `payment method selection has the fields from formFieldValues`() {
         val formFieldValues = FormFieldValues(
             fieldValuePairs = mapOf(
-                IdentifierSpec.SaveForFutureUse to FormFieldEntry("true", true)
+                com.stripe.android.ui.core.elements.IdentifierSpec.SaveForFutureUse to FormFieldEntry("true", true)
             ),
             showsMandate = false,
             userRequestedReuse = PaymentSelection.CustomerRequestedSave.RequestReuse

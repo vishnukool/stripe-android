@@ -6,8 +6,8 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class SaveForFutureUseControllerTest {
-    private val mandateIdentifier = IdentifierSpec.Generic("mandate")
-    private val nameSectionIdentifier = IdentifierSpec.Name
+    private val mandateIdentifier = com.stripe.android.ui.core.elements.IdentifierSpec.Generic("mandate")
+    private val nameSectionIdentifier = com.stripe.android.ui.core.elements.IdentifierSpec.Name
     private val hiddenIdentifiers = listOf(nameSectionIdentifier, mandateIdentifier)
     private val saveForFutureUseController = SaveForFutureUseController(hiddenIdentifiers, true)
 
@@ -20,8 +20,8 @@ class SaveForFutureUseControllerTest {
             assertThat(saveForFutureUseController.hiddenIdentifiers.first())
                 .isEqualTo(
                     listOf(
-                        IdentifierSpec.Name,
-                        IdentifierSpec.Generic("mandate")
+                        com.stripe.android.ui.core.elements.IdentifierSpec.Name,
+                        com.stripe.android.ui.core.elements.IdentifierSpec.Generic("mandate")
                     )
                 )
         }

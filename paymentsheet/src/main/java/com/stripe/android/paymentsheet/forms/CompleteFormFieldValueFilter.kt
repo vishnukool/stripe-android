@@ -1,6 +1,6 @@
 package com.stripe.android.paymentsheet.forms
 
-import com.stripe.android.paymentsheet.elements.IdentifierSpec
+import com.stripe.android.ui.core.elements.IdentifierSpec
 import com.stripe.android.paymentsheet.model.PaymentSelection
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.combine
  * the list of form elements into a [FormFieldValues].
  */
 internal class CompleteFormFieldValueFilter(
-    private val currentFieldValueMap: Flow<Map<IdentifierSpec, FormFieldEntry>>,
-    private val hiddenIdentifiers: Flow<List<IdentifierSpec>>,
+    private val currentFieldValueMap: Flow<Map<com.stripe.android.ui.core.elements.IdentifierSpec, FormFieldEntry>>,
+    private val hiddenIdentifiers: Flow<List<com.stripe.android.ui.core.elements.IdentifierSpec>>,
     val showingMandate: Flow<Boolean>,
     private val userRequestedReuse: Flow<PaymentSelection.CustomerRequestedSave>
 ) {
@@ -30,8 +30,8 @@ internal class CompleteFormFieldValueFilter(
     }
 
     private fun filterFlow(
-        idFieldSnapshotMap: Map<IdentifierSpec, FormFieldEntry>,
-        hiddenIdentifiers: List<IdentifierSpec>,
+        idFieldSnapshotMap: Map<com.stripe.android.ui.core.elements.IdentifierSpec, FormFieldEntry>,
+        hiddenIdentifiers: List<com.stripe.android.ui.core.elements.IdentifierSpec>,
         showingMandate: Boolean,
         userRequestedReuse: PaymentSelection.CustomerRequestedSave
     ): FormFieldValues? {

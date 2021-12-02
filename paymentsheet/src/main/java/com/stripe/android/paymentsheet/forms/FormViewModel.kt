@@ -17,6 +17,8 @@ import com.stripe.android.paymentsheet.injection.DaggerFormViewModelComponent
 import com.stripe.android.paymentsheet.injection.FormViewModelSubcomponent
 import com.stripe.android.paymentsheet.model.PaymentSelection
 import com.stripe.android.paymentsheet.paymentdatacollection.FormFragmentArguments
+import com.stripe.android.ui.core.elements.LayoutSpec
+import com.stripe.android.ui.core.elements.ResourceRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map

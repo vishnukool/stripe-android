@@ -3,18 +3,16 @@ package com.stripe.android.paymentsheet.elements
 import android.os.Build
 import android.os.Looper.getMainLooper
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.asLiveData
 import com.google.common.truth.Truth.assertThat
 import com.stripe.android.paymentsheet.R
-import com.stripe.android.paymentsheet.elements.TextFieldStateConstants.Error.Blank
-import com.stripe.android.paymentsheet.elements.TextFieldStateConstants.Error.Invalid
-import com.stripe.android.paymentsheet.elements.TextFieldStateConstants.Valid.Full
-import com.stripe.android.paymentsheet.elements.TextFieldStateConstants.Valid.Limitless
+import com.stripe.android.ui.core.TextFieldStateConstants.Error.Blank
+import com.stripe.android.ui.core.TextFieldStateConstants.Error.Invalid
+import com.stripe.android.ui.core.TextFieldStateConstants.Valid.Full
+import com.stripe.android.ui.core.TextFieldStateConstants.Valid.Limitless
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.verify
-import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -209,12 +207,12 @@ internal class TextFieldControllerTest {
 
     @Test
     fun `Verify filter is called to set the input value`() {
-        val config: TextFieldConfig = mock {
+        val config: com.stripe.android.ui.core.TextFieldConfig = mock {
             on { determineState("1234") } doReturn Limitless
             on { filter("1a2b3c4d") } doReturn "1234"
         }
 
-        val controller = TextFieldController(config)
+        val controller = com.stripe.android.ui.core.elements.TextFieldController(config)
 
         controller.onValueChange("1a2b3c4d")
 
@@ -223,8 +221,8 @@ internal class TextFieldControllerTest {
 
     private fun createControllerWithState(
         showOptionalLabel: Boolean = false
-    ): TextFieldController {
-        val config: TextFieldConfig = mock {
+    ): com.stripe.android.ui.core.elements.TextFieldController {
+        val config: com.stripe.android.ui.core.TextFieldConfig = mock {
             on { determineState("full") } doReturn Full
             on { filter("full") } doReturn "full"
 
@@ -247,13 +245,13 @@ internal class TextFieldControllerTest {
             on { label } doReturn R.string.address_label_name
         }
 
-        return TextFieldController(config, showOptionalLabel)
+        return com.stripe.android.ui.core.elements.TextFieldController(config, showOptionalLabel)
     }
 
     companion object {
         val fieldError = FieldError(-1)
 
-        object ShowWhenNoFocus : TextFieldState {
+        object ShowWhenNoFocus : com.stripe.android.ui.core.TextFieldState {
             override fun isValid(): Boolean = false
             override fun isFull(): Boolean = false
             override fun isBlank(): Boolean = false

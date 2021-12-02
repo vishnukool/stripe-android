@@ -1,7 +1,7 @@
 package com.stripe.android.paymentsheet.paymentdatacollection
 
 import com.google.common.truth.Truth.assertThat
-import com.stripe.android.paymentsheet.elements.IdentifierSpec
+import com.stripe.android.ui.core.elements.IdentifierSpec
 import com.stripe.android.paymentsheet.forms.FormFieldEntry
 import com.stripe.android.paymentsheet.forms.FormFieldValues
 import com.stripe.android.paymentsheet.model.PaymentSelection
@@ -14,7 +14,7 @@ class TransformToPaymentMethodCreateParamMapTest {
             .transform(
                 FormFieldValues(
                     mapOf(
-                        IdentifierSpec.Generic("bank") to FormFieldEntry(
+                        com.stripe.android.ui.core.elements.IdentifierSpec.Generic("bank") to FormFieldEntry(
                             "abn_amro",
                             true
                         )
@@ -43,15 +43,15 @@ class TransformToPaymentMethodCreateParamMapTest {
             .transform(
                 FormFieldValues(
                     mapOf(
-                        IdentifierSpec.Name to FormFieldEntry(
+                        com.stripe.android.ui.core.elements.IdentifierSpec.Name to FormFieldEntry(
                             "joe",
                             true
                         ),
-                        IdentifierSpec.Email to FormFieldEntry(
+                        com.stripe.android.ui.core.elements.IdentifierSpec.Email to FormFieldEntry(
                             "joe@gmail.com",
                             true
                         ),
-                        IdentifierSpec.Generic("country") to FormFieldEntry(
+                        com.stripe.android.ui.core.elements.IdentifierSpec.Generic("country") to FormFieldEntry(
                             "US",
                             true
                         ),

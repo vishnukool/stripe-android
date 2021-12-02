@@ -10,11 +10,11 @@ import com.stripe.android.paymentsheet.elements.BankRepository
 import com.stripe.android.paymentsheet.elements.CountryConfig
 import com.stripe.android.paymentsheet.elements.CountryElement
 import com.stripe.android.paymentsheet.elements.CountrySpec
-import com.stripe.android.paymentsheet.elements.EmailConfig
+import com.stripe.android.ui.core.elements.EmailConfig
 import com.stripe.android.paymentsheet.elements.EmailElement
 import com.stripe.android.paymentsheet.elements.EmailSpec
-import com.stripe.android.paymentsheet.elements.IdentifierSpec
-import com.stripe.android.paymentsheet.elements.NameConfig
+import com.stripe.android.ui.core.elements.IdentifierSpec
+import com.stripe.android.ui.core.elements.NameConfig
 import com.stripe.android.paymentsheet.elements.ResourceRepository
 import com.stripe.android.paymentsheet.elements.SaveForFutureUseElement
 import com.stripe.android.paymentsheet.elements.SaveForFutureUseSpec
@@ -36,12 +36,12 @@ import java.io.File
 internal class TransformSpecToElementTest {
 
     private val nameSection = SectionSpec(
-        IdentifierSpec.Generic("name_section"),
+        com.stripe.android.ui.core.elements.IdentifierSpec.Generic("name_section"),
         SimpleTextSpec.NAME
     )
 
     private val emailSection = SectionSpec(
-        IdentifierSpec.Generic("email_section"),
+        com.stripe.android.ui.core.elements.IdentifierSpec.Generic("email_section"),
         EmailSpec
     )
 
@@ -69,7 +69,7 @@ internal class TransformSpecToElementTest {
         val formElement = transformSpecToElement.transform(
             listOf(
                 SectionSpec(
-                    IdentifierSpec.Generic("multifield_section"),
+                    com.stripe.android.ui.core.elements.IdentifierSpec.Generic("multifield_section"),
                     listOf(
                         CountrySpec(),
                         IDEAL_BANK_CONFIG
@@ -87,7 +87,7 @@ internal class TransformSpecToElementTest {
     @Test
     fun `Adding a country section sets up the section and country elements correctly`() {
         val countrySection = SectionSpec(
-            IdentifierSpec.Generic("country_section"),
+            com.stripe.android.ui.core.elements.IdentifierSpec.Generic("country_section"),
             CountrySpec(onlyShowCountryCodes = setOf("AT"))
         )
         val formElement = transformSpecToElement.transform(
@@ -111,7 +111,7 @@ internal class TransformSpecToElementTest {
     @Test
     fun `Adding a ideal bank section sets up the section and country elements correctly`() {
         val idealSection = SectionSpec(
-            IdentifierSpec.Generic("ideal_section"),
+            com.stripe.android.ui.core.elements.IdentifierSpec.Generic("ideal_section"),
             IDEAL_BANK_CONFIG
         )
         val formElement = transformSpecToElement.transform(
@@ -139,7 +139,7 @@ internal class TransformSpecToElementTest {
             .fields[0] as SimpleTextElement
 
         // Verify the correct config is setup for the controller
-        assertThat(nameElement.controller.label).isEqualTo(NameConfig().label)
+        assertThat(nameElement.controller.label).isEqualTo(com.stripe.android.ui.core.elements.NameConfig().label)
         assertThat(nameElement.identifier.value).isEqualTo("name")
 
         assertThat(nameElement.controller.capitalization).isEqualTo(KeyboardCapitalization.Words)
@@ -151,9 +151,9 @@ internal class TransformSpecToElementTest {
         val formElement = transformSpecToElement.transform(
             listOf(
                 SectionSpec(
-                    IdentifierSpec.Generic("simple_section"),
+                    com.stripe.android.ui.core.elements.IdentifierSpec.Generic("simple_section"),
                     SimpleTextSpec(
-                        IdentifierSpec.Generic("simple"),
+                        com.stripe.android.ui.core.elements.IdentifierSpec.Generic("simple"),
                         R.string.address_label_name,
                         showOptionalLabel = true,
                         keyboardType = KeyboardType.Text,
@@ -182,14 +182,14 @@ internal class TransformSpecToElementTest {
         val emailElement = emailSectionElement.fields[0] as EmailElement
 
         // Verify the correct config is setup for the controller
-        assertThat(emailElement.controller.label).isEqualTo(EmailConfig().label)
+        assertThat(emailElement.controller.label).isEqualTo(com.stripe.android.ui.core.elements.EmailConfig().label)
         assertThat(emailElement.identifier.value).isEqualTo("email")
     }
 
     @Test
     fun `Add a static text section spec setup of the static element correctly`() {
         val staticText = StaticTextSpec(
-            IdentifierSpec.Generic("mandate"),
+            com.stripe.android.ui.core.elements.IdentifierSpec.Generic("mandate"),
             stringResId = R.string.stripe_paymentsheet_sepa_mandate,
             color = R.color.stripe_paymentsheet_mandate_text_color,
             fontSizeSp = 120,
@@ -213,7 +213,7 @@ internal class TransformSpecToElementTest {
     fun `Add a save for future use section spec sets the mandate element correctly`() =
         runBlocking {
             val mandate = StaticTextSpec(
-                IdentifierSpec.Generic("mandate"),
+                com.stripe.android.ui.core.elements.IdentifierSpec.Generic("mandate"),
                 R.string.stripe_paymentsheet_sepa_mandate,
                 color = R.color.stripe_paymentsheet_mandate_text_color,
             )
@@ -241,7 +241,7 @@ internal class TransformSpecToElementTest {
 
     companion object {
         val IDEAL_BANK_CONFIG = BankDropdownSpec(
-            IdentifierSpec.Generic("bank"),
+            com.stripe.android.ui.core.elements.IdentifierSpec.Generic("bank"),
             R.string.stripe_paymentsheet_ideal_bank,
             SupportedBankType.Ideal
         )

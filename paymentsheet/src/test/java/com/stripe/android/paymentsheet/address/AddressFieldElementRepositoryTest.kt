@@ -6,7 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.stripe.android.paymentsheet.address.AddressFieldElementRepository.Companion.DEFAULT_COUNTRY_CODE
 import com.stripe.android.paymentsheet.address.AddressFieldElementRepository.Companion.supportedCountries
-import com.stripe.android.paymentsheet.elements.IdentifierSpec
+import com.stripe.android.ui.core.elements.IdentifierSpec
 import com.stripe.android.paymentsheet.elements.RowElement
 import org.junit.Test
 import org.junit.runner.RunWith

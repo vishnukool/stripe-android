@@ -1,12 +1,12 @@
 package com.stripe.android.paymentsheet.elements
 
 import com.google.common.truth.Truth
-import com.stripe.android.paymentsheet.elements.TextFieldStateConstants.Error.Blank
-import com.stripe.android.paymentsheet.elements.TextFieldStateConstants.Valid.Limitless
+import com.stripe.android.ui.core.TextFieldStateConstants.Error.Blank
+import com.stripe.android.ui.core.TextFieldStateConstants.Valid.Limitless
 import org.junit.Test
 
 class NameConfigTest {
-    private val nameConfig = NameConfig()
+    private val nameConfig = com.stripe.android.ui.core.elements.NameConfig()
 
     @Test
     fun `verify determine state returns blank and required when empty or null`() {

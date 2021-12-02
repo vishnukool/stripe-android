@@ -9,17 +9,14 @@ import com.stripe.android.paymentsheet.elements.CountryConfig
 import com.stripe.android.paymentsheet.elements.CountryElement
 import com.stripe.android.paymentsheet.elements.CountrySpec
 import com.stripe.android.paymentsheet.elements.DropdownFieldController
-import com.stripe.android.paymentsheet.elements.EmailConfig
 import com.stripe.android.paymentsheet.elements.EmailElement
 import com.stripe.android.paymentsheet.elements.EmailSpec
 import com.stripe.android.paymentsheet.elements.EmptyFormElement
 import com.stripe.android.paymentsheet.elements.EmptyFormSpec
 import com.stripe.android.paymentsheet.elements.FormElement
 import com.stripe.android.paymentsheet.elements.FormItemSpec
-import com.stripe.android.paymentsheet.elements.IbanConfig
 import com.stripe.android.paymentsheet.elements.IbanElement
 import com.stripe.android.paymentsheet.elements.IbanSpec
-import com.stripe.android.paymentsheet.elements.IdentifierSpec
 import com.stripe.android.paymentsheet.elements.KlarnaCountrySpec
 import com.stripe.android.paymentsheet.elements.KlarnaHelper
 import com.stripe.android.paymentsheet.elements.LayoutSpec
@@ -27,7 +24,6 @@ import com.stripe.android.paymentsheet.elements.ResourceRepository
 import com.stripe.android.paymentsheet.elements.SaveForFutureUseController
 import com.stripe.android.paymentsheet.elements.SaveForFutureUseElement
 import com.stripe.android.paymentsheet.elements.SaveForFutureUseSpec
-import com.stripe.android.paymentsheet.elements.SectionController
 import com.stripe.android.paymentsheet.elements.SectionElement
 import com.stripe.android.paymentsheet.elements.SectionFieldSpec
 import com.stripe.android.paymentsheet.elements.SectionSingleFieldElement
@@ -35,12 +31,10 @@ import com.stripe.android.paymentsheet.elements.SectionSpec
 import com.stripe.android.paymentsheet.elements.SimpleDropdownConfig
 import com.stripe.android.paymentsheet.elements.SimpleDropdownElement
 import com.stripe.android.paymentsheet.elements.SimpleTextElement
-import com.stripe.android.paymentsheet.elements.SimpleTextFieldConfig
 import com.stripe.android.paymentsheet.elements.SimpleTextSpec
 import com.stripe.android.paymentsheet.elements.StaticTextElement
 import com.stripe.android.paymentsheet.elements.StaticTextSpec
-import com.stripe.android.paymentsheet.elements.TextFieldController
-import com.stripe.android.paymentsheet.model.Amount
+import com.stripe.android.ui.core.Amount
 import com.stripe.android.paymentsheet.paymentdatacollection.FormFragmentArguments
 import com.stripe.android.paymentsheet.paymentdatacollection.getValue
 import javax.inject.Inject
@@ -78,7 +72,7 @@ internal class TransformSpecToElement @Inject constructor(
         return SectionElement(
             this.identifier,
             fieldElements,
-            SectionController(
+            com.stripe.android.ui.core.elements.SectionController(
                 this.title,
                 fieldElements.map { it.sectionFieldErrorController() }
             )
@@ -108,7 +102,7 @@ internal class TransformSpecToElement @Inject constructor(
 
     private fun transformAddress(initialValues: FormFragmentArguments) =
         AddressElement(
-            IdentifierSpec.Generic("billing"),
+            com.stripe.android.ui.core.elements.IdentifierSpec.Generic("billing"),
             resourceRepository.addressRepository,
             initialValues
         )
@@ -128,13 +122,16 @@ internal class TransformSpecToElement @Inject constructor(
     private fun EmailSpec.transform(email: String?) =
         EmailElement(
             this.identifier,
-            TextFieldController(EmailConfig(), initialValue = email),
+            com.stripe.android.ui.core.elements.TextFieldController(
+                com.stripe.android.ui.core.elements.EmailConfig(),
+                initialValue = email
+            ),
         )
 
     private fun IbanSpec.transform() =
         IbanElement(
             this.identifier,
-            TextFieldController(IbanConfig())
+            com.stripe.android.ui.core.elements.TextFieldController(com.stripe.android.ui.core.elements.IbanConfig())
         )
 
     private fun CountrySpec.transform(country: String?) =
@@ -183,8 +180,8 @@ internal fun SimpleTextSpec.transform(
 ): SectionSingleFieldElement =
     SimpleTextElement(
         this.identifier,
-        TextFieldController(
-            SimpleTextFieldConfig(
+        com.stripe.android.ui.core.elements.TextFieldController(
+            com.stripe.android.ui.core.elements.SimpleTextFieldConfig(
                 label = this.label,
                 capitalization = this.capitalization,
                 keyboard = this.keyboardType
