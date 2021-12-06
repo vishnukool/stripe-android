@@ -15,26 +15,18 @@ configurations {
 }
 
 if (System.getenv("JITPACK")) {
-    group='com.github.stripe.stripe-android'
+    group = 'com.github.stripe.stripe-android'
 }
 
 dependencies {
-    implementation project(":payments-core")
+    implementation project(':payments-core')
 
-    implementation libraries.androidx.annotation
+    implementation 'androidx.core:core-ktx:1.7.0'
     implementation libraries.androidx.appcompat
-    implementation libraries.androidx.browser
-    implementation libraries.androidx.recyclerview
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
     implementation libraries.androidx.lifecycle.livedata.ktx
     implementation libraries.androidx.lifecycle.viewmodel.ktx
-    implementation libraries.androidx.lifecycle.viewmodel.savedstate
-    implementation libraries.androidx.fragment.ktx
-    implementation libraries.androidx.constraintlayout
-    implementation libraries.androidx.activity.ktx
-    implementation 'com.google.android.gms:play-services-wallet:18.1.3'
     implementation "com.google.android.material:material:$materialVersion"
-    implementation "com.google.dagger:dagger:$daggerVersion"
-    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
 
     implementation "androidx.compose.ui:ui:$composeVersion"
     // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
@@ -45,35 +37,28 @@ dependencies {
     implementation "androidx.compose.material:material-icons-core:$composeVersion"
     // Integration with activities
     implementation "androidx.activity:activity-compose:$composeActivityVersion"
+    implementation("androidx.navigation:navigation-compose:2.4.0-beta02")
     // Integration with observables
     implementation "androidx.compose.runtime:runtime-livedata:$composeVersion"
     implementation "com.google.accompanist:accompanist-flowlayout:0.20.2"
-    // Tooling support (Previews, etc.)
-    debugImplementation "androidx.compose.ui:ui-tooling:$composeVersion"
+    implementation "androidx.compose.ui:ui-tooling-preview:$composeVersion"
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.0'
 
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinCoroutinesVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1"
 
     testImplementation "junit:junit:$junitVersion"
+    testImplementation 'com.google.truth:truth:1.1.3'
     testImplementation "org.mockito:mockito-core:$mockitoCoreVersion"
     testImplementation "org.mockito:mockito-inline:$mockitoCoreVersion"
     testImplementation "org.robolectric:robolectric:$robolectricVersion"
     testImplementation "androidx.test:core:$androidTestVersion"
-    testImplementation 'org.json:json:20211205'
-    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
-    testImplementation "org.jetbrains.kotlin:kotlin-test-annotations-common:$kotlinVersion"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
-    testImplementation 'com.google.truth:truth:1.1.3'
-    testImplementation 'androidx.test.ext:junit-ktx:1.1.3'
-    testImplementation "androidx.arch.core:core-testing:2.1.0"
-    testImplementation libraries.androidx.fragment.testing
 
-    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
-    androidTestImplementation "androidx.test:rules:$androidTestVersion"
-    androidTestImplementation "androidx.test:runner:$androidTestVersion"
-    androidTestUtil "androidx.test:orchestrator:$androidTestVersion"
+    androidTestImplementation 'com.google.truth:truth:1.1.3'
+    // Test rules and transitive dependencies:
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$composeVersion"
+    // Tooling support (Previews, etc.)
+    debugImplementation "androidx.compose.ui:ui-tooling:$composeVersion"
+    // Needed for createComposeRule, but not createAndroidComposeRule:
+    debugImplementation("androidx.compose.ui:ui-test-manifest:$composeVersion")
 
     ktlint "com.pinterest:ktlint:$ktlintVersion"
 }
@@ -109,11 +94,11 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
+        useIR = true
     }
 
     buildFeatures {
         compose = true
-        viewBinding true
     }
 
     testOptions {
@@ -128,10 +113,6 @@ android {
 
     composeOptions {
         kotlinCompilerExtensionVersion "$composeVersion"
-    }
-
-    lintOptions {
-        disable "UnrememberedMutableState"
     }
 
     dokkaHtml {
@@ -157,10 +138,10 @@ task ktlintFormat(type: JavaExec, group: "formatting") {
     args "-F", "src/**/*.kt"
 }
 
-ext {
-    artifactId = "paymentsheet"
-    artifactName = "paymentsheet"
-    artifactDescrption = "The paymentsheet module of Stripe Payment Android SDK"
-}
-
-apply from: "${rootDir}/deploy/deploy.gradle"
+//ext {
+//    artifactId = "link"
+//    artifactName = "link"
+//    artifactDescrption = "The Link module of Stripe Payment Android SDK"
+//}
+//
+//apply from: "${rootDir}/deploy/deploy.gradle"
