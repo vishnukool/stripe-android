@@ -46,6 +46,13 @@
                 android:text="@string/create_payment_method" />
 
             <Button
+                android:id="@+id/confirm_button"
+                android:layout_height="wrap_content"
+                android:layout_width="320dp"
+                android:enabled="false"
+                android:text="@string/confirm_card" />
+
+            <Button
                 android:id="@+id/toggle_card_form_view"
                 android:layout_height="wrap_content"
                 android:layout_width="320dp"
