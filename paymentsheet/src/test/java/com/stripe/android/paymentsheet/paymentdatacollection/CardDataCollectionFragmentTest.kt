@@ -500,7 +500,8 @@ internal class CardDataCollectionFragmentTest : PaymentSheetViewModelTestInjecti
             layout = fragmentArgs.paymentMethod.formSpec,
             config = formFragmentArguments,
             resourceRepository = mock(),
-            transformSpecToElement = TransformSpecToElement(mock(), formFragmentArguments)
+            transformSpecToElement = TransformSpecToElement(mock(), formFragmentArguments, mock()),
+            mock()
         )
 
         registerViewModel(args.injectorKey, viewModel, formViewModel)

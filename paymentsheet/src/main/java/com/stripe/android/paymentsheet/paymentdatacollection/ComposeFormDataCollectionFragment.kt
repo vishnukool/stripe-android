@@ -16,6 +16,7 @@ import com.stripe.android.paymentsheet.forms.Form
 import com.stripe.android.paymentsheet.forms.FormViewModel
 import com.stripe.android.paymentsheet.model.SupportedPaymentMethod
 import com.stripe.android.ui.core.StripeTheme
+import com.stripe.android.ui.core.elements.JsEngine
 
 /**
  * Fragment that displays a form for payment data collection based on the [SupportedPaymentMethod]
@@ -36,6 +37,8 @@ internal class ComposeFormDataCollectionFragment : Fragment() {
         )
     }
 
+    val jsEngine: JsEngine by viewModels()
+
     val formViewModel: FormViewModel by viewModels {
         FormViewModel.Factory(
             resource = resources,
@@ -44,7 +47,9 @@ internal class ComposeFormDataCollectionFragment : Fragment() {
                 requireArguments().getParcelable(
                     EXTRA_CONFIG
                 )
-            )
+            ),
+            jsEngine = jsEngine
+
         )
     }
 

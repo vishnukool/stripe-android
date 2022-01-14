@@ -2,7 +2,6 @@ package com.stripe.android.paymentsheet
 
 import android.app.Application
 import android.os.Bundle
-import android.os.Parcelable
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.LiveData
@@ -23,7 +22,6 @@ import com.stripe.android.paymentsheet.model.PaymentSelection
 import com.stripe.android.paymentsheet.repositories.CustomerRepository
 import com.stripe.android.paymentsheet.viewmodels.BaseSheetViewModel
 import com.stripe.android.ui.core.forms.resources.ResourceRepository
-import kotlinx.parcelize.Parcelize
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.coroutines.CoroutineContext
@@ -124,23 +122,20 @@ internal class PaymentOptionsViewModel @Inject constructor(
         }
     }
 
-    internal sealed class TransitionTarget : Parcelable {
+    internal sealed class TransitionTarget {
         abstract val fragmentConfig: FragmentConfig
 
         // User has saved PM's and is selected
-        @Parcelize
         data class SelectSavedPaymentMethod(
             override val fragmentConfig: FragmentConfig
         ) : TransitionTarget()
 
         // User has saved PM's and is adding a new one
-        @Parcelize
         data class AddPaymentMethodFull(
             override val fragmentConfig: FragmentConfig
         ) : TransitionTarget()
 
         // User has no saved PM's
-        @Parcelize
         data class AddPaymentMethodSheet(
             override val fragmentConfig: FragmentConfig
         ) : TransitionTarget()

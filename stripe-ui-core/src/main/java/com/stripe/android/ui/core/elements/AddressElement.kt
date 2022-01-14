@@ -62,6 +62,27 @@ class AddressElement constructor(
         }
     }
 
+    @ExperimentalCoroutinesApi
+    override fun getTargetFlow() = fields.flatMapLatest { fieldElements ->
+        combine(
+            fieldElements
+                .map {
+                    it.getTargetFlow()
+                }
+        ) {
+            val children = it.toList().filterNotNull()
+            val target = JsRequest.Target(
+                id = identifier.value,
+                children = children
+            )
+            children.forEach { child ->
+                child.parent = target
+            }
+
+            target
+        }
+    }
+
     override fun setRawValue(rawValuesMap: Map<IdentifierSpec, String?>) {
         this.rawValuesMap = rawValuesMap
     }

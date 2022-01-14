@@ -17,6 +17,13 @@ internal fun SectionFieldElementUI(
                 modifier = modifier
             )
         }
+        is JsTextFieldController -> {
+            TextField(
+                textFieldController = controller,
+                enabled = enabled,
+                modifier = modifier
+            )
+        }
         is DropdownFieldController -> {
             DropDown(
                 controller.label,
@@ -36,5 +43,6 @@ internal fun SectionFieldElementUI(
                 controller
             )
         }
+        is SaveForFutureUseController -> TODO()
     }
 }

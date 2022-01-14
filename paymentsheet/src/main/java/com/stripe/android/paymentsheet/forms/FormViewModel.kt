@@ -12,6 +12,8 @@ import com.stripe.android.paymentsheet.injection.FormViewModelSubcomponent
 import com.stripe.android.paymentsheet.model.PaymentSelection
 import com.stripe.android.paymentsheet.paymentdatacollection.FormFragmentArguments
 import com.stripe.android.ui.core.elements.FormElement
+import com.stripe.android.ui.core.elements.JsEngine
+import com.stripe.android.ui.core.elements.JsRequest
 import com.stripe.android.ui.core.elements.LayoutSpec
 import com.stripe.android.ui.core.elements.SaveForFutureUseElement
 import com.stripe.android.ui.core.elements.SectionSpec
@@ -43,12 +45,14 @@ internal class FormViewModel @Inject internal constructor(
     layout: LayoutSpec,
     config: FormFragmentArguments,
     private val resourceRepository: ResourceRepository,
-    private val transformSpecToElement: TransformSpecToElement
+    private val transformSpecToElement: TransformSpecToElement,
+    val jsEngine: JsEngine
 ) : ViewModel() {
     internal class Factory(
         val config: FormFragmentArguments,
         val resource: Resources,
-        var layout: LayoutSpec
+        var layout: LayoutSpec,
+        val jsEngine: JsEngine
     ) : ViewModelProvider.Factory, Injectable<Factory.FallbackInitializeParam> {
         internal data class FallbackInitializeParam(
             val resource: Resources
@@ -62,11 +66,13 @@ internal class FormViewModel @Inject internal constructor(
             injectWithFallback(config.injectorKey, FallbackInitializeParam(resource))
             return subComponentBuilderProvider.get()
                 .formFragmentArguments(config)
+                .jsEngine(jsEngine)
                 .layout(layout)
                 .build().viewModel as T
         }
 
         override fun fallbackInitialize(arg: FallbackInitializeParam) {
+            //TODO: Investigate this
             DaggerFormViewModelComponent.builder()
                 .resources(arg.resource)
                 .build()
@@ -171,6 +177,22 @@ internal class FormViewModel @Inject internal constructor(
                 }
             }?.firstOrNull() ?: PaymentSelection.CustomerRequestedSave.NoRequest
         }
+
+    val completeTargetValues =
+            elements.filterNotNull().map { elementsList ->
+                combine(
+                    elementsList.map {
+                        it.getTargetFlow()
+                    }
+                ) {
+                    val children = it.toList().filterNotNull()
+                    val target = JsRequest.Target(id = "form", children = children)
+                    children.forEach {  child ->
+                        child.parent = target
+                    }
+                    target
+                }
+            }.flattenConcat()
 
     val completeFormValues =
         CompleteFormFieldValueFilter(

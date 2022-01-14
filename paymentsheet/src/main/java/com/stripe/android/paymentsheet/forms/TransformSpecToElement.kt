@@ -3,6 +3,7 @@ package com.stripe.android.paymentsheet.forms
 import com.stripe.android.paymentsheet.paymentdatacollection.FormFragmentArguments
 import com.stripe.android.paymentsheet.paymentdatacollection.getInitialValuesMap
 import com.stripe.android.ui.core.elements.FormItemSpec
+import com.stripe.android.ui.core.elements.JsEngine
 import com.stripe.android.ui.core.forms.TransformSpecToElements
 import com.stripe.android.ui.core.forms.resources.ResourceRepository
 import javax.inject.Inject
@@ -12,7 +13,8 @@ import javax.inject.Inject
  */
 internal class TransformSpecToElement @Inject constructor(
     resourceRepository: ResourceRepository,
-    formFragmentArguments: FormFragmentArguments
+    formFragmentArguments: FormFragmentArguments,
+    jsEngine: JsEngine
 ) {
     private val transformSpecToElements =
         TransformSpecToElements(
@@ -21,7 +23,8 @@ internal class TransformSpecToElement @Inject constructor(
             amount = formFragmentArguments.amount,
             country = formFragmentArguments.billingDetails?.address?.country,
             saveForFutureUseInitialValue = formFragmentArguments.showCheckboxControlledFields,
-            merchantName = formFragmentArguments.merchantName
+            merchantName = formFragmentArguments.merchantName,
+            jsEngine
         )
 
     internal fun transform(list: List<FormItemSpec>) = transformSpecToElements.transform(list)

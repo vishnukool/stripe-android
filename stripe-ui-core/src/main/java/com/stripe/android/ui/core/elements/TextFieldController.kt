@@ -18,18 +18,18 @@ import kotlinx.coroutines.flow.map
  * exposing immutable observers for its data
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class TextFieldController constructor(
+open class TextFieldController constructor(
     private val textFieldConfig: TextFieldConfig,
     override val showOptionalLabel: Boolean = false,
     initialValue: String? = null
 ) : InputController, SectionFieldErrorController {
-    val capitalization: KeyboardCapitalization = textFieldConfig.capitalization
-    val keyboardType: KeyboardType = textFieldConfig.keyboard
-    val visualTransformation = textFieldConfig.visualTransformation ?: VisualTransformation.None
+    open val capitalization: KeyboardCapitalization = textFieldConfig.capitalization
+    open val keyboardType: KeyboardType = textFieldConfig.keyboard
+    open val visualTransformation = textFieldConfig.visualTransformation ?: VisualTransformation.None
 
     @StringRes
     override val label: Int = textFieldConfig.label
-    val debugLabel = textFieldConfig.debugLabel
+    open val debugLabel = textFieldConfig.debugLabel
 
     /** This is all the information that can be observed on the element */
     private val _fieldValue = MutableStateFlow("")
@@ -41,7 +41,7 @@ class TextFieldController constructor(
 
     private val _hasFocus = MutableStateFlow(false)
 
-    val visibleError: Flow<Boolean> =
+    open val visibleError: Flow<Boolean> =
         combine(_fieldState, _hasFocus) { fieldState, hasFocus ->
             fieldState.shouldShowError(hasFocus)
         }
@@ -53,7 +53,7 @@ class TextFieldController constructor(
         _fieldState.value.getError()?.takeIf { visibleError }
     }
 
-    val isFull: Flow<Boolean> = _fieldState.map { it.isFull() }
+    open val isFull: Flow<Boolean> = _fieldState.map { it.isFull() }
 
     override val isComplete: Flow<Boolean> = _fieldState.map {
         it.isValid() || (!it.isValid() && showOptionalLabel && it.isBlank())
@@ -71,7 +71,7 @@ class TextFieldController constructor(
     /**
      * This is called when the value changed to is a display value.
      */
-    fun onValueChange(displayFormatted: String) {
+    open fun onValueChange(displayFormatted: String) {
         _fieldValue.value = textFieldConfig.filter(displayFormatted)
 
         // Should be filtered value
@@ -85,7 +85,7 @@ class TextFieldController constructor(
         onValueChange(textFieldConfig.convertFromRaw(rawValue))
     }
 
-    fun onFocusChange(newHasFocus: Boolean) {
+    open fun onFocusChange(newHasFocus: Boolean) {
         _hasFocus.value = newHasFocus
     }
 }

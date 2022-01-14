@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
+
   <!-- Used for accessibility to describe the button on the payment sheet list of options to add a new payment method. -->
   <string name="add_new_payment_method">Add a new payment method</string>
   <!-- Description of a saved bank account. E.g. 'Bank account ending in 4242' -->

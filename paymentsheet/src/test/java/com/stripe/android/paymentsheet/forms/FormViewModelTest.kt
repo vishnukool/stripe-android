@@ -16,10 +16,14 @@ import com.stripe.android.paymentsheet.injection.FormViewModelSubcomponent
 import com.stripe.android.paymentsheet.model.PaymentSelection
 import com.stripe.android.ui.core.address.AddressFieldElementRepository
 import com.stripe.android.ui.core.elements.AddressElement
+import com.stripe.android.ui.core.elements.AfterpayClearpayHeaderElement
 import com.stripe.android.ui.core.elements.BankRepository
 import com.stripe.android.ui.core.elements.CountrySpec
 import com.stripe.android.ui.core.elements.EmailSpec
+import com.stripe.android.ui.core.elements.EmptyFormElement
 import com.stripe.android.ui.core.elements.IdentifierSpec
+import com.stripe.android.ui.core.elements.JsRequest
+import com.stripe.android.ui.core.elements.JsResponse
 import com.stripe.android.ui.core.elements.LayoutSpec
 import com.stripe.android.ui.core.elements.RowElement
 import com.stripe.android.ui.core.elements.SaveForFutureUseController
@@ -28,15 +32,21 @@ import com.stripe.android.ui.core.elements.SaveForFutureUseSpec
 import com.stripe.android.ui.core.elements.SectionElement
 import com.stripe.android.ui.core.elements.SectionSingleFieldElement
 import com.stripe.android.ui.core.elements.SectionSpec
+import com.stripe.android.ui.core.elements.SerializedData
 import com.stripe.android.ui.core.elements.SimpleTextSpec.Companion.NAME
+import com.stripe.android.ui.core.elements.StaticTextElement
 import com.stripe.android.ui.core.elements.TextFieldController
 import com.stripe.android.ui.core.forms.SepaDebitForm
 import com.stripe.android.ui.core.forms.SofortForm
 import com.stripe.android.ui.core.forms.resources.StaticResourceRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -74,6 +84,17 @@ internal class FormViewModelTest {
         )
 
     @Test
+    fun `test serialization`(){
+        val format = Json { ignoreUnknownKeys = true }
+        val str = "\"{\"id\":\"123\",\"field\":\"123\",\"rawFieldValue\":\"false\",\"state\":{\"shouldShowErrorHasFocus\":true,\"shouldShowErrorHasNoFocus\":false,\"full\":false,\"blank\":false,\"valid\":false,\"errorMsg\":\"This is the js error message\"}}\""
+        .replace("\\", "")
+            .replace(Regex("^\""), "")
+            .replace(Regex("\"$"), "")
+
+        format.decodeFromString<JsResponse>(str)
+    }
+
+    @Test
     fun `Factory gets initialized by Injector when Injector is available`() {
         val mockBuilder = mock<FormViewModelSubcomponent.Builder>()
         val mockSubcomponent = mock<FormViewModelSubcomponent>()
@@ -97,6 +118,7 @@ internal class FormViewModelTest {
             config,
             ApplicationProvider.getApplicationContext<Application>().resources,
             SofortForm,
+            mock()
         )
         val factorySpy = spy(factory)
         val createdViewModel = factorySpy.create(FormViewModel::class.java)
@@ -106,6 +128,27 @@ internal class FormViewModelTest {
         WeakMapInjectorRegistry.clear()
     }
 
+    @Test
+    fun test(){
+        val format = Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+        }
+
+        val jsonListStr = """
+            [
+            {"id":"1","kind":1,"type":"TextField","props":{},"children":[{"id":"0","kind":2,"text":"Text change watcher"}]},{"id":"3","kind":1,"type":"Button","props":{},"children":[{"id":"2","kind":2,"text":"Log message in remote environment"}]}
+            ]
+        """.trimIndent()
+
+        val jsonString2 = """
+            {"id":"1","kind":1,"type":"TextField","props":{"onTextChange":{"__f":"1f55f42e55f7fd-10eaedb821d0b5-188a132e6a1ac5-1444e5f8483eaf"}},"children":[{"id":"0","kind":2,"text":"Text change watcher"}]}
+        """.trimIndent()
+        println(format.decodeFromString<SerializedData>(jsonString2))
+
+
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `Factory gets initialized with fallback when no Injector is available`() = runTest {
@@ -113,7 +156,8 @@ internal class FormViewModelTest {
         val factory = FormViewModel.Factory(
             config,
             ApplicationProvider.getApplicationContext<Application>().resources,
-            SofortForm
+            SofortForm,
+            mock()
         )
         val factorySpy = spy(factory)
         assertNotNull(factorySpy.create(FormViewModel::class.java))
@@ -135,7 +179,8 @@ internal class FormViewModelTest {
             ),
             args,
             resourceRepository = resourceRepository,
-            transformSpecToElement = TransformSpecToElement(resourceRepository, args)
+            transformSpecToElement = TransformSpecToElement(resourceRepository, args, mock()),
+            mock()
         )
 
         val values = mutableListOf<Boolean?>()
@@ -151,6 +196,28 @@ internal class FormViewModelTest {
     }
 
     @Test
+    fun `test get target values`() = runBlockingTest{
+        val args = COMPOSE_FRAGMENT_ARGS
+        val formViewModel = FormViewModel(
+            LayoutSpec.create(
+                emailSection,
+                countrySection,
+                SaveForFutureUseSpec(listOf(emailSection))
+            ),
+            args,
+            resourceRepository = resourceRepository,
+            transformSpecToElement = TransformSpecToElement(resourceRepository, args, mock()),
+            mock()
+        )
+
+        convertToTargetValues(formViewModel.completeTargetValues.first())
+    }
+
+    fun convertToTargetValues(value: JsRequest.Target?) {
+        println(value?.id)
+    }
+
+    @Test
     fun `Verify setting save for future use visibility`() {
         val args = COMPOSE_FRAGMENT_ARGS
         val formViewModel = FormViewModel(
@@ -161,7 +228,8 @@ internal class FormViewModelTest {
             ),
             args,
             resourceRepository = resourceRepository,
-            transformSpecToElement = TransformSpecToElement(resourceRepository, args)
+            transformSpecToElement = TransformSpecToElement(resourceRepository, args, mock()),
+            mock()
         )
 
         val values = mutableListOf<List<IdentifierSpec>>()
@@ -189,7 +257,8 @@ internal class FormViewModelTest {
             ),
             args,
             resourceRepository = resourceRepository,
-            transformSpecToElement = TransformSpecToElement(resourceRepository, args)
+            transformSpecToElement = TransformSpecToElement(resourceRepository, args, mock()),
+            mock()
         )
 
         val values = mutableListOf<List<IdentifierSpec>>()
@@ -221,7 +290,8 @@ internal class FormViewModelTest {
             ),
             args,
             resourceRepository = resourceRepository,
-            transformSpecToElement = TransformSpecToElement(resourceRepository, args)
+            transformSpecToElement = TransformSpecToElement(resourceRepository, args, mock()),
+            mock()
         )
 
         val saveForFutureUseController = formViewModel.elements.first()!!.map { it.controller }
@@ -261,7 +331,8 @@ internal class FormViewModelTest {
             ),
             args,
             resourceRepository = resourceRepository,
-            transformSpecToElement = TransformSpecToElement(resourceRepository, args)
+            transformSpecToElement = TransformSpecToElement(resourceRepository, args, mock()),
+            mock()
         )
 
         val saveForFutureUseController = formViewModel.elements.first()!!.map { it.controller }
@@ -310,7 +381,8 @@ internal class FormViewModelTest {
             SofortForm,
             args,
             resourceRepository = resourceRepository,
-            transformSpecToElement = TransformSpecToElement(resourceRepository, args)
+            transformSpecToElement = TransformSpecToElement(resourceRepository, args, mock()),
+            mock()
         )
 
         val nameElement =
@@ -358,7 +430,8 @@ internal class FormViewModelTest {
             SepaDebitForm,
             args,
             resourceRepository = resourceRepository,
-            transformSpecToElement = TransformSpecToElement(resourceRepository, args)
+            transformSpecToElement = TransformSpecToElement(resourceRepository, args, mock()),
+            mock()
         )
 
         getSectionFieldTextControllerWithLabel(
@@ -429,7 +502,8 @@ internal class FormViewModelTest {
             SepaDebitForm,
             args,
             resourceRepository = resourceRepository,
-            transformSpecToElement = TransformSpecToElement(resourceRepository, args)
+            transformSpecToElement = TransformSpecToElement(resourceRepository, args, mock()),
+            mock()
         )
 
         getSectionFieldTextControllerWithLabel(

@@ -19,6 +19,8 @@ data class AfterpayClearpayHeaderElement(
     override fun getFormFieldValueFlow(): Flow<List<Pair<IdentifierSpec, FormFieldEntry>>> =
         MutableStateFlow(emptyList())
 
+    override fun getTargetFlow(): Flow<JsRequest.Target?> = MutableStateFlow(null)
+
     val infoUrl = url.format(Locale.current.region.lowercase())
 
     fun getLabel(resources: Resources) =

@@ -3,12 +3,14 @@ package com.stripe.android.ui.core.elements
 import android.os.Parcelable
 import androidx.annotation.RestrictTo
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
 /**
  * This uniquely identifies a element in the form.  The objects here are for identifier
  * specs that need to be found when pre-populating fields, or when extracting data.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Serializable
 sealed class IdentifierSpec(val value: String) : Parcelable {
     @Parcelize
     data class Generic(private val _value: String) : IdentifierSpec(_value)

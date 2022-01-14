@@ -1,6 +1,10 @@
 package com.stripe.android.ui.core.forms
 
+import android.util.Log
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import com.stripe.android.ui.core.Amount
+import com.stripe.android.ui.core.R
 import com.stripe.android.ui.core.address.AddressFieldElementRepository
 import com.stripe.android.ui.core.elements.AddressSpec
 import com.stripe.android.ui.core.elements.AfterpayClearpayTextSpec
@@ -14,6 +18,9 @@ import com.stripe.android.ui.core.elements.FormElement
 import com.stripe.android.ui.core.elements.FormItemSpec
 import com.stripe.android.ui.core.elements.IbanSpec
 import com.stripe.android.ui.core.elements.IdentifierSpec
+import com.stripe.android.ui.core.elements.JsEngine
+import com.stripe.android.ui.core.elements.JsSimpleTextElement
+import com.stripe.android.ui.core.elements.JsTextFieldController
 import com.stripe.android.ui.core.elements.KlarnaCountrySpec
 import com.stripe.android.ui.core.elements.LayoutSpec
 import com.stripe.android.ui.core.elements.SaveForFutureUseSpec
@@ -21,9 +28,11 @@ import com.stripe.android.ui.core.elements.SectionController
 import com.stripe.android.ui.core.elements.SectionElement
 import com.stripe.android.ui.core.elements.SectionFieldSpec
 import com.stripe.android.ui.core.elements.SectionSpec
+import com.stripe.android.ui.core.elements.SimpleTextFieldConfig
 import com.stripe.android.ui.core.elements.SimpleTextSpec
 import com.stripe.android.ui.core.elements.StaticTextSpec
 import com.stripe.android.ui.core.forms.resources.ResourceRepository
+import kotlinx.coroutines.flow.filter
 
 /**
  * Transform a [LayoutSpec] data object into an Element, which
@@ -36,12 +45,37 @@ class TransformSpecToElements(
     private val amount: Amount?,
     private val country: String?,
     private val saveForFutureUseInitialValue: Boolean,
-    private val merchantName: String
+    private val merchantName: String,
+    private val jsEngine: JsEngine
 ) {
     fun transform(
         list: List<FormItemSpec>
-    ): List<FormElement> =
-        list.map {
+    ): List<FormElement> {
+        val identifierSpec = IdentifierSpec.Generic("tst")
+        val jsSimpleTextElement = listOf(
+            JsSimpleTextElement(
+                identifierSpec,
+                JsTextFieldController(
+                    jsEngine,
+                    jsEngine.responseFlow.filter {
+                        Log.e("MLB", "response id: ${it.id}")
+                        it.id == identifierSpec.value
+                    },
+                    SimpleTextFieldConfig(
+                        R.string.address_label_name,
+                        KeyboardCapitalization.Words,
+                        KeyboardType.Ascii
+                    ),
+                    identifierSpec,
+                    onChangeJs = "{\n" +
+                        // TODO: Must have curly braces. Put all javascript client side logic in here
+                        "    Android.response(Android.post(\"/name\", JSON.stringify(e)));" +
+                        "}"
+
+                )
+            )
+        )
+        return list.map {
             when (it) {
                 is SaveForFutureUseSpec -> it.transform(
                     saveForFutureUseInitialValue,
@@ -59,7 +93,18 @@ class TransformSpecToElements(
                     it.transform(requireNotNull(amount))
                 is EmptyFormSpec -> EmptyFormElement()
             }
-        }
+        }.plus(
+            SectionElement(
+                IdentifierSpec.Generic("section_tst"),
+                jsSimpleTextElement,
+                SectionController(
+                    null,
+                    jsSimpleTextElement.map { it.sectionFieldErrorController() }
+                )
+            )
+
+        )
+    }
 
     private fun SectionSpec.transform(
         initialValues: Map<IdentifierSpec, String?>,

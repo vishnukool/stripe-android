@@ -22,4 +22,7 @@ data class StaticTextElement(
 ) : FormElement() {
     override fun getFormFieldValueFlow(): Flow<List<Pair<IdentifierSpec, FormFieldEntry>>> =
         MutableStateFlow(emptyList())
+
+    override fun getTargetFlow(): Flow<JsRequest.Target?> =
+        MutableStateFlow(null)
 }

@@ -16,6 +16,21 @@ class RowElement constructor(
             it.toList().flatten()
         }
 
+    override fun getTargetFlow(): Flow<JsRequest.Target?> =
+        combine(fields.map { it.getTargetFlow() }) {
+            val children = it.toList().filterNotNull()
+
+            val target = JsRequest.Target(
+                id = identifier.value,
+                children = children
+            )
+            children.forEach { child ->
+                child.parent = target
+            }
+
+            target
+        }
+
     override fun sectionFieldErrorController() = controller
 
     override fun setRawValue(rawValuesMap: Map<IdentifierSpec, String?>) {

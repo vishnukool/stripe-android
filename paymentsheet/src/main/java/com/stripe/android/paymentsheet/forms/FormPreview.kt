@@ -8,6 +8,7 @@ import com.stripe.android.paymentsheet.model.SupportedPaymentMethod
 import com.stripe.android.paymentsheet.paymentdatacollection.FormFragmentArguments
 import com.stripe.android.ui.core.address.AddressFieldElementRepository
 import com.stripe.android.ui.core.elements.BankRepository
+import com.stripe.android.ui.core.elements.JsEngine
 import com.stripe.android.ui.core.elements.SupportedBankType
 import com.stripe.android.ui.core.forms.SofortForm
 import com.stripe.android.ui.core.forms.resources.StaticResourceRepository
@@ -63,7 +64,8 @@ internal fun FormInternalPreview() {
                         phone = "+18008675309"
                     ),
                     injectorKey = DUMMY_INJECTOR_KEY
-                )
+                ),
+                jsEngine = JsEngine()
             ).transform(formElements)
         )
     )

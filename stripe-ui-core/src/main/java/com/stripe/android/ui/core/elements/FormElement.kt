@@ -14,4 +14,5 @@ sealed class FormElement {
     abstract val controller: Controller?
 
     abstract fun getFormFieldValueFlow(): Flow<List<Pair<IdentifierSpec, FormFieldEntry>>>
+    abstract fun getTargetFlow(): Flow<JsRequest.Target?>
 }

@@ -108,7 +108,8 @@ internal open class PaymentSheetViewModelTestInjection {
             layout = LayoutSpec.create(),
             config = mock(),
             resourceRepository = mock(),
-            transformSpecToElement = mock()
+            transformSpecToElement = mock(),
+            mock()
         )
     ) {
         injector = object : Injector {

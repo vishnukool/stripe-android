@@ -28,6 +28,15 @@ sealed class SectionSingleFieldElement(
         }
     }
 
+    override fun getTargetFlow(): Flow<JsRequest.Target?> {
+        return controller.formFieldValue.map { formFieldEntry ->
+            JsRequest.Target(
+                id = identifier.value,
+                value = formFieldEntry.value
+            )
+        }
+    }
+
     override fun setRawValue(rawValuesMap: Map<IdentifierSpec, String?>) {
         rawValuesMap[identifier]?.let { controller.onRawValueChange(it) }
     }

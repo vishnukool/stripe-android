@@ -21,4 +21,13 @@ data class SaveForFutureUseElement(
                 identifier to it
             )
         }
+
+    override fun getTargetFlow(): Flow<JsRequest.Target?> {
+        return controller.formFieldValue.map {
+            JsRequest.Target(
+                id = identifier.value,
+                value = it.value
+            )
+        }
+    }
 }

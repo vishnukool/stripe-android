@@ -1,5 +1,6 @@
 package com.stripe.android.ui.core.elements
 
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,8 @@ fun SectionElementUI(
     hiddenIdentifiers: List<IdentifierSpec>?,
 ) {
     if (hiddenIdentifiers?.contains(element.identifier) == false) {
+
+        Log.e("MLB", "Section element UI")
         val controller = element.controller
 
         val error by controller.error.collectAsState(null)

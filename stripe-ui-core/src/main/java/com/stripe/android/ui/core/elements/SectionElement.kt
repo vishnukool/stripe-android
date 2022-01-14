@@ -23,4 +23,14 @@ data class SectionElement(
         combine(fields.map { it.getFormFieldValueFlow() }) {
             it.toList().flatten()
         }
+
+    override fun getTargetFlow(): Flow<JsRequest.Target?> =
+        combine(fields.map { it.getTargetFlow() }) {
+            val parent = JsRequest.Target(id = identifier.value)
+            parent.children = it.toList().filterNotNull()
+            parent.children.forEach { child ->
+                child.parent = parent
+            }
+            parent
+        }
 }

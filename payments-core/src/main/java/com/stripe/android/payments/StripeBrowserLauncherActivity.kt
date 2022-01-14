@@ -33,6 +33,7 @@ internal class StripeBrowserLauncherActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        android.util.Log.e("MLB", "On create method call saveInstanceState: $savedInstanceState")
         val args = PaymentBrowserAuthContract.parseArgs(intent)
         if (args == null) {
             // handle failures
@@ -63,6 +64,7 @@ internal class StripeBrowserLauncherActivity : AppCompatActivity() {
 
     private fun onResult(activityResult: ActivityResult) {
         // always dismiss the activity when a result is available
+        android.util.Log.e("MLB", "OnResult method call")
 
         finish()
     }
@@ -70,6 +72,7 @@ internal class StripeBrowserLauncherActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
+        android.util.Log.e("MLB", "On new intent method call")
         // This is invoked by the intent filter. We might not need to implement this method but
         // leaving it here for posterity.
     }
