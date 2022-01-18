@@ -25,7 +25,7 @@ class JsTextFieldController constructor(
     override val showOptionalLabel: Boolean = false,
     initialValue: String? = null,
     val onChangeJs: String? = null,
-    val textChangeFnId: String? = null
+    val jsId: String? = null,
 ) : TextFieldController(textFieldConfig, showOptionalLabel, initialValue) {
     override val capitalization: KeyboardCapitalization = textFieldConfig.capitalization
     override val keyboardType: KeyboardType = textFieldConfig.keyboard
@@ -81,15 +81,12 @@ class JsTextFieldController constructor(
     override fun onValueChange(displayFormatted: String) {
 
         // This is the approach using remote-ui
-
-//        val fullJavascript = "javascript:" +
-//            "(function(e) ${javascript})(${format.encodeToString(event)});"
+        // This has some assumptions about the properties in the component.  TextChange
+        // must exist, especially for android which requires it.
         val fullJavascript = "javascript:" +
             "(function(e) {" +
-            "window.parentIFrame.postMessage(\"5,1234,${this.textChangeFnId}\"); })();"
-//            "window.remoteEndpoint.encoder.call(\"${this.textChangeFnId}\"); })();"
-        //  "(function() { console.log('Is ui-text-field undefined: ' + document.querySelector('ui-text-field') == undefined); })();"
-
+            "window.receiver.nodes.get(\"${this.jsId}\").onTextChange(\"${displayFormatted}\"); " +
+            "})();"
         jsEngine.runJavascript(fullJavascript)
 
         // This is a data driven approach with local js code execution

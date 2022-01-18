@@ -47,23 +47,12 @@ data class Function(
     val __f: String
 )
 
-//@Serializable
-//data class Property(
-//    val onPress: Function? = null,
-//    val onTextChange: Function? = null
-//)
-//
-//@Serializable
-//class Props(
-//    val property:
-//)
-
 @Serializable
 data class SerializedData(
     val id: String,
     val kind: String,
     val type: String = "",
-    val props: Map<String, Function>? = null,
+    val props: Map<String, String>? = null, // For the object deserialize not mount needs to be Function for onTextChange
     val children: ArrayList<SerializedData> = arrayListOf()
 )
 
@@ -84,6 +73,31 @@ class JsEngine(
     val _elements = MutableStateFlow<List<FormElement>?>(null)
     val elements: StateFlow<List<FormElement>?> = _elements
 
+    val idToControllerMap = HashMap<String, TextFieldController>()
+
+    fun updateProps(id: String, propsString: String) {
+        val deserializedPropMap = format.decodeFromString<Map<String, String>>(propsString)
+        //get the controller for the element that matches and call
+        // set value
+        viewModelScope.launch {
+            _responseFlow.emit(
+                JsResponse(
+                    id,
+                    deserializedPropMap["myValue"] ?: "",
+                    deserializedPropMap["myValue"] ?: "",
+                    JsTextFieldState(
+                        shouldShowErrorHasFocus = false,
+                        shouldShowErrorHasNoFocus = false,
+                        full = false,
+                        blank = false,
+                        valid = false,
+                        errorMsg = null
+                    )
+                )
+            )
+        }
+    }
+
     fun decode(serializedData: String) {
         Log.e("MLB", "decoding string: $serializedData")
         var decodedDataMaybe: SerializedData? = null
@@ -97,7 +111,7 @@ class JsEngine(
                     else -> {
                         val decodedData = decodedDataMaybe!!
                         Log.e("MLB", "decoding string complete: $serializedData")
-                        if(decodedData.type == "TextField") {
+                        if (decodedData.type == "TextField") {
                             _elements.value = listOf(
                                 when (decodedData.type) {
                                     "TextField" -> {
@@ -105,7 +119,7 @@ class JsEngine(
                                             IdentifierSpec.Generic(decodedData.id),
                                             JsTextFieldController(
                                                 this,
-                                                responseFlow,
+                                                responseFlow.filter { it.id == decodedData.id },
                                                 SimpleTextFieldConfig(
                                                     label = R.string.label_placeholder,
                                                     capitalization = KeyboardCapitalization.None,
@@ -113,9 +127,10 @@ class JsEngine(
                                                 ),
                                                 showOptionalLabel = false,
                                                 identifierSpec = IdentifierSpec.Generic("Idontknow"),
-                                                textChangeFnId = decodedData.props?.get("onTextChange")?.__f
+//                                                textChangeFnId = decodedData.props?.get("onTextChange")?.__f
                                             )
                                         )
+                                        idToControllerMap[decodedData.id] = fieldElement.controller
                                         SectionElement(
                                             IdentifierSpec.Generic(decodedData.id + "section"),
                                             fieldElement,
@@ -167,14 +182,15 @@ class JsEngine(
                                         IdentifierSpec.Generic(decodedData.id),
                                         JsTextFieldController(
                                             this,
-                                            responseFlow,
+                                            responseFlow.filter { it.id == decodedData.id },
                                             SimpleTextFieldConfig(
                                                 label = R.string.label_placeholder,
                                                 capitalization = KeyboardCapitalization.None,
                                                 keyboard = KeyboardType.Ascii
                                             ),
                                             showOptionalLabel = false,
-                                            identifierSpec = IdentifierSpec.Generic("Idontknow")
+                                            identifierSpec = IdentifierSpec.Generic("Idontknow"),
+                                            jsId = decodedData.id
                                         )
                                     )
                                     SectionElement(
@@ -215,22 +231,26 @@ class JsEngine(
     fun mount(serializedJsonStr: String) {
         val decodedData = format.decodeFromString<ArrayList<SerializedData>>(serializedJsonStr)
 
-        _elements.value = decodedData.map {
-            when (it.type) {
-                "ui-text" -> {
-                    val fieldElement = SimpleTextElement(
-                        IdentifierSpec.Generic(it.id),
-                        TextFieldController(
+        _elements.value = decodedData.map { serializedData ->
+            when (serializedData.type) {
+                "TextField" -> {
+                    val fieldElement = JsSimpleTextElement(
+                        IdentifierSpec.Generic(serializedData.id),
+                        JsTextFieldController(
+                            this,
+                            responseFlow.filter { it.id == serializedData.id },
                             SimpleTextFieldConfig(
                                 label = R.string.label_placeholder,
                                 capitalization = KeyboardCapitalization.None,
                                 keyboard = KeyboardType.Ascii
                             ),
-                            showOptionalLabel = false
+                            showOptionalLabel = false,
+                            identifierSpec = IdentifierSpec.Generic("Idontknow"),
+                            jsId = serializedData.id
                         )
                     )
                     SectionElement(
-                        IdentifierSpec.Generic(it.id + "section"),
+                        IdentifierSpec.Generic(serializedData.id + "section"),
                         fieldElement,
                         SectionController(
                             null,
@@ -238,9 +258,7 @@ class JsEngine(
                         )
                     )
                 }
-                else -> {
-                    null
-                }
+                else -> null
             }
         }.filterNotNull() as List<FormElement>
 

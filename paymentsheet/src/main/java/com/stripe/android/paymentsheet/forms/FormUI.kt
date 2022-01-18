@@ -155,6 +155,11 @@ class WebAppInterface(val jsEngine: JsEngine) {
     fun decode(serializedData: String) {
         jsEngine.decode(serializedData)
     }
+    @JavascriptInterface
+    fun updateProps(id: String, props: String) {
+        Log.e("MLB", "Update props ${id}, ${props}")
+        jsEngine.updateProps(id, props)
+    }
 
     @JavascriptInterface
     fun insertChild(serializedData: String) {

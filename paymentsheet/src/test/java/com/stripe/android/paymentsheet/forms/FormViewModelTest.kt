@@ -135,17 +135,23 @@ internal class FormViewModelTest {
             isLenient = true
         }
 
-        val jsonListStr = """
-            [
-            {"id":"1","kind":1,"type":"TextField","props":{},"children":[{"id":"0","kind":2,"text":"Text change watcher"}]},{"id":"3","kind":1,"type":"Button","props":{},"children":[{"id":"2","kind":2,"text":"Log message in remote environment"}]}
-            ]
-        """.trimIndent()
-
-        val jsonString2 = """
-            {"id":"1","kind":1,"type":"TextField","props":{"onTextChange":{"__f":"1f55f42e55f7fd-10eaedb821d0b5-188a132e6a1ac5-1444e5f8483eaf"}},"children":[{"id":"0","kind":2,"text":"Text change watcher"}]}
-        """.trimIndent()
-        println(format.decodeFromString<SerializedData>(jsonString2))
-
+//        val jsonListStr = """
+//            [
+//            {"id":"1","kind":1,"type":"TextField","props":{},"children":[{"id":"0","kind":2,"text":"Text change watcher"}]},{"id":"3","kind":1,"type":"Button","props":{},"children":[{"id":"2","kind":2,"text":"Log message in remote environment"}]}
+//            ]
+//        """.trimIndent()
+//
+//        val jsonString2 = """
+//            {"id":"1","kind":1,"type":"TextField","props":{"onTextChange":{"__f":"1f55f42e55f7fd-10eaedb821d0b5-188a132e6a1ac5-1444e5f8483eaf"}},"children":[{"id":"0","kind":2,"text":"Text change watcher"}]}
+//        """.trimIndent()
+//        println(format.decodeFromString<SerializedData>(jsonString2))
+//
+//,{"id":"1","kind":1,"type":"TextField","props":{},"children":[]},{"id":"3","kind":1,"type":"Button","props":{},"children":[{"id":"2","kind":2,"text":"Log message in remote environment"}]}
+//
+        val str = """
+            {"id":"0","kind":1,"type":"TextField","props":{"label":"Text change watcher","myValue":"starting value"},"children":[]}
+            """.trimIndent()
+        println(format.decodeFromString<SerializedData>(str))
 
     }
 
