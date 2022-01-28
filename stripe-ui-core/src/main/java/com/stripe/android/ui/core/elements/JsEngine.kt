@@ -38,6 +38,7 @@ sealed class JsRequest {
 data class JsResponse(
     val id: String,
     val field: String,
+    val label: String,
     val rawFieldValue: String,
     val state: JsTextFieldState
 )
@@ -84,14 +85,15 @@ class JsEngine(
                 JsResponse(
                     id,
                     deserializedPropMap["myValue"] ?: "",
+                    "label",
                     deserializedPropMap["myValue"] ?: "",
                     JsTextFieldState(
-                        shouldShowErrorHasFocus = false,
-                        shouldShowErrorHasNoFocus = false,
-                        full = false,
-                        blank = false,
-                        valid = false,
-                        errorMsg = null
+                        shouldShowErrorHasFocus = deserializedPropMap["shouldShowErrorHasFocus"].toBoolean(),
+                        shouldShowErrorHasNoFocus = deserializedPropMap["shouldShowErrorHasNoFocus"].toBoolean(),
+                        full = deserializedPropMap["full"].toBoolean(),
+                        blank = deserializedPropMap["blank"].toBoolean(),
+                        valid = deserializedPropMap["valid"].toBoolean(),
+                        errorMsg = deserializedPropMap["errorMsg"]
                     )
                 )
             )
@@ -107,7 +109,8 @@ class JsEngine(
         }.onFailure { }
             .onSuccess {
                 when (decodedDataMaybe) {
-                    null -> {}
+                    null -> {
+                    }
                     else -> {
                         val decodedData = decodedDataMaybe!!
                         Log.e("MLB", "decoding string complete: $serializedData")
@@ -171,7 +174,8 @@ class JsEngine(
         }.onFailure { }
             .onSuccess {
                 when (decodedDataMaybe) {
-                    null -> {}
+                    null -> {
+                    }
                     else -> {
                         val decodedData = decodedDataMaybe!!
                         Log.e("MLB", "decoding string complete: $serializedData")
@@ -184,7 +188,13 @@ class JsEngine(
                                             this,
                                             responseFlow.filter { it.id == decodedData.id },
                                             SimpleTextFieldConfig(
-                                                label = R.string.label_placeholder,
+                                                label = if (decodedData.props?.get("label") == "Name") {
+                                                    R.string.name
+                                                } else if (decodedData.props?.get("label") == "Email") {
+                                                    R.string.email
+                                                } else {
+                                                    R.string.label_placeholder
+                                                },
                                                 capitalization = KeyboardCapitalization.None,
                                                 keyboard = KeyboardType.Ascii
                                             ),

@@ -43,7 +43,9 @@ class JsTextFieldController constructor(
     val _rawFieldValue = jsResponseFlow.map { it.rawFieldValue }
     override val rawFieldValue: Flow<String> = _rawFieldValue
 
-    private val _fieldState = jsResponseFlow.map { it.state }
+    private val _fieldState = jsResponseFlow.map {
+        it.state
+    }
 
     private val _hasFocus = MutableStateFlow(false)
 

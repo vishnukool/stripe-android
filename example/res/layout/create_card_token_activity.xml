@@ -25,6 +25,13 @@
                   android:text="@string/create_card_token"
                   style="@style/Header" />
 
+
+        <com.stripe.android.view.CardMultilineWidget
+            android:id="@+id/card_multiline_widget"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardTextErrorColor="@android:color/holo_red_dark"/>
+
         <com.stripe.android.view.CardInputWidget
             android:id="@+id/card_input_widget"
             android:layout_width="match_parent"

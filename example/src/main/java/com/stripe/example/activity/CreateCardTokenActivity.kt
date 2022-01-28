@@ -2,6 +2,7 @@ package com.stripe.example.activity
 
 import android.app.Activity
 import android.app.Application
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -20,6 +21,13 @@ import com.stripe.example.R
 import com.stripe.example.StripeFactory
 import com.stripe.example.databinding.CreateCardTokenActivityBinding
 import com.stripe.example.databinding.TokenItemBinding
+import android.os.Build
+
+import android.annotation.TargetApi
+import android.content.Context
+import android.content.res.Resources
+import java.util.Locale
+
 
 class CreateCardTokenActivity : AppCompatActivity() {
     private val viewBinding: CreateCardTokenActivityBinding by lazy {
@@ -29,10 +37,37 @@ class CreateCardTokenActivity : AppCompatActivity() {
     private val snackbarController: SnackbarController by lazy {
         SnackbarController(viewBinding.coordinator)
     }
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(updateBaseContextLocale(base))
+    }
+
+    private fun updateBaseContextLocale(context: Context): Context? {
+        val locale = Locale("en")
+        Locale.setDefault(locale)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            updateResourcesLocale(context, locale)
+        } else updateResourcesLocaleLegacy(context, locale)
+    }
+
+    @TargetApi(Build.VERSION_CODES.N)
+    private fun updateResourcesLocale(context: Context, locale: Locale): Context? {
+        val configuration: Configuration = context.getResources().getConfiguration()
+        configuration.setLocale(locale)
+        return context.createConfigurationContext(configuration)
+    }
+
+    private fun updateResourcesLocaleLegacy(context: Context, locale: Locale): Context? {
+        val resources: Resources = context.getResources()
+        val configuration: Configuration = resources.getConfiguration()
+        configuration.locale = locale
+        resources.updateConfiguration(configuration, resources.getDisplayMetrics())
+        return context
+    }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
+
 
         val adapter = Adapter(this)
         viewBinding.tokensList.adapter = adapter
