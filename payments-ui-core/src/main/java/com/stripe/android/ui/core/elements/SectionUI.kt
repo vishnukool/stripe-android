@@ -2,21 +2,25 @@ package com.stripe.android.ui.core.elements
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Colors
+import androidx.compose.material.ContentAlpha
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -117,10 +121,9 @@ fun SectionCard(
 ) {
     val cardStyle = CardStyle(isSystemInDarkTheme())
     Card(
-//        border = BorderStroke(cardStyle.cardBorderWidth, cardStyle.cardBorderColor),
-//        elevation = cardStyle.cardElevation,
-        modifier = Modifier.padding(30.dp)
-//        backgroundColor = cardStyle.cardStyleBackground
+        border = BorderStroke(cardStyle.cardBorderWidth, cardStyle.cardBorderColor),
+        elevation = cardStyle.cardElevation,
+        backgroundColor = cardStyle.cardStyleBackground
     ) {
         Column {
             content()
@@ -163,18 +166,23 @@ fun PreviewTheme(
             secondary = Purple,
             secondaryVariant = PurpleLight,
             background = Green800,
-            surface = Teal,
-            error = Color.Red,
+            surface = Color.White,
+            error = Red800,
             onPrimary = Color.White,
             onSecondary = PurpleLightest,
             onBackground = Yellow400,
-            onSurface = TealLight,
+            onSurface = Green800,
             onError = Color.Magenta,
             isLight = true
         )
     ) {
-        Column{
-            content()
+        Surface{
+            // Surface color is used on Sheets (which is what the paymentsheet is)
+            Column {
+                Column(modifier = Modifier.padding(5.dp)) {
+                    content()
+                }
+            }
         }
     }
 }
@@ -183,11 +191,14 @@ fun PreviewTheme(
 @Composable
 fun FilledText() {
     PreviewTheme {
-
+        AppBarDefaults
         Text(
             text = "Filled Text:\n" +
-                "- Filled color = surface + alpha\n" +
+                "- Filled color = onSurface? + alpha\n" +
                 "- placeholder text color = onSurface\n" +
+                "- label in place of placeholder until entering text\n" +
+                "- label shrinks to the top of the filled box when entering text\n" +
+                "- placeholder text appears when entering text\n" +
                 "- value text color = black - not in material theme\n" +
                 "- value text color on error = black - not in material theme\n" +
                 "- error line under = error",
@@ -205,11 +216,13 @@ fun FilledText() {
 @Composable
 fun OutlinePreview() {
     PreviewTheme {
-
         Text(
             text = "OutlinedText:\n" +
                 "- Default outline color = onSurface\n" +
                 "- placeholder text color = onSurface\n" +
+                "- label in place of placeholder until entering text\n" +
+                "- label is part of the outline box when entering text\n" +
+                "- placeholder text appears when field clicked on\n" +
                 "- text field background = none - not in material theme\n" +
                 "- value text color = black - not in material theme\n" +
                 "- value text color on error = black - not in material theme\n" +
@@ -226,18 +239,107 @@ fun OutlinePreview() {
 
 @Preview
 @Composable
-fun checkboxPreview() {
-    val checkedState = remember { mutableStateOf(true) }
+fun CheckboxPreview() {
     PreviewTheme {
         Text(text = "Checkbox background = Secondary color\ncheck mark = background\n corner radius cannot be set it is 2.dp")
         Row {
             // corner radius always 2.dp not changeable
             Checkbox(
-                checked = checkedState.value,
-                onCheckedChange = { checkedState.value = it },
-                modifier = Modifier.padding(top = 10.dp)
+                checked = true,
+                onCheckedChange = { },
             )
-            Text(text = "Save for future payments")
+            Text(text = "Save future...")
+
+            // corner radius always 2.dp not changeable
+            Checkbox(
+                checked = false,
+                onCheckedChange = { },
+            )
+            Text(text = "Save future...")
+        }
+    }
+}
+
+@Preview
+@Composable
+fun CardPreviewWithButton() {
+
+    PreviewTheme {
+
+        Text(
+            text = "Default card border stroke is null.\n card = surface\nselected=undefined",
+        )
+        Row {
+
+            Button(
+                enabled = true,
+                onClick = { /*TODO*/ },
+                modifier = Modifier.width(100.dp)
+            ) {
+                Column {
+                    Image(
+                        painter = painterResource(id = R.drawable.stripe_ic_amex),
+                        contentDescription = null,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+
+            // Disabled - Is not handled by default - I wonder if a Button would be better here?
+
+            Button(
+                enabled = false,
+                onClick = { /*TODO*/ },
+                modifier = Modifier
+                    .padding(start = 4.dp)
+                    .width(100.dp)
+            ) {
+                Column {
+                    Image(
+                        painter = painterResource(id = R.drawable.stripe_ic_amex),
+                        contentDescription = null,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    Text("disabled")
+                }
+            }
+
+            // Selected
+            Button(
+                enabled = false,
+                onClick = { /*TODO*/ },
+                modifier = Modifier
+                    .padding(start = 4.dp)
+                    .width(100.dp)
+            ) {
+                Column {
+                    Image(
+                        painter = painterResource(id = R.drawable.stripe_ic_amex),
+                        contentDescription = null,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    Text("selected")
+                }
+            }
+
+            // Not selected
+            Button(
+                enabled = false,
+                onClick = { /*TODO*/ },
+                modifier = Modifier
+                    .padding(start = 4.dp)
+                    .width(100.dp)
+            ) {
+                Column {
+                    Image(
+                        painter = painterResource(id = R.drawable.stripe_ic_amex),
+                        contentDescription = null,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    Text("de-selected")
+                }
+            }
+
         }
     }
 }
@@ -245,18 +347,79 @@ fun checkboxPreview() {
 @Preview
 @Composable
 fun CardPreview() {
+    val cardStyle = CardStyle(isSystemInDarkTheme())
     PreviewTheme {
+
         Text(
-            text = "Default card border stroke is null.\n background = surface",
+            text = "Default card border stroke is null.\n card = surface\nselected=undefined",
         )
-        Card {
-            Column {
-                Image(
-                    painter = painterResource(id = R.drawable.stripe_ic_amex),
-                    contentDescription = null,
-                    modifier = Modifier.padding(16.dp)
-                )
+        Row {
+
+            Card(
+                backgroundColor =
+                TealLight.copy(alpha = ContentAlpha.medium),
+                modifier = Modifier.width(100.dp)
+            ) {
+                Column {
+                    Image(
+                        painter = painterResource(id = R.drawable.stripe_ic_amex),
+                        contentDescription = null,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
+
+            // Disabled - Is not handled by default - I wonder if a Button would be better here?
+            Card(
+                backgroundColor = GrayLight,
+                modifier = Modifier
+                    .padding(start = 4.dp)
+                    .width(100.dp)
+            ) {
+                Column {
+                    Image(
+                        painter = painterResource(id = R.drawable.stripe_ic_amex),
+                        contentDescription = null,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    Text("selected")
+                }
+            }
+
+            // Selected
+            Card(
+                backgroundColor = Teal,
+                modifier = Modifier
+                    .padding(start = 4.dp)
+                    .width(100.dp)
+            ) {
+                Column {
+                    Image(
+                        painter = painterResource(id = R.drawable.stripe_ic_amex),
+                        contentDescription = null,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    Text("selected")
+                }
+            }
+
+            // Not selected
+            Card(
+                backgroundColor = TealLight,
+                modifier = Modifier
+                    .padding(start = 4.dp)
+                    .width(100.dp)
+            ) {
+                Column {
+                    Image(
+                        painter = painterResource(id = R.drawable.stripe_ic_amex),
+                        contentDescription = null,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    Text("de-selected")
+                }
+            }
+
         }
     }
 }
@@ -268,8 +431,7 @@ fun ButtonPreview() {
         Text(
             text = "Button:\nButton text - onSurface\ndefault buttoncolor = primary",
         )
-        Button(
-            onClick = { /*TODO*/ }) {
+        Button(onClick = { /*TODO*/ }) {
             Text(
                 text = "Buy",
             )
@@ -283,6 +445,7 @@ fun CardPreviewFilled() {
         // This the filled text field which will always have a background
         androidx.compose.material.TextField(
             value = "",
+            label = { Text("Number") },
             onValueChange = {},
             placeholder = {
                 Text(text = "placeholder")
@@ -294,6 +457,7 @@ fun CardPreviewFilled() {
         Row {
             androidx.compose.material.TextField(
                 value = "",
+                label = { Text("MM/YY") },
                 onValueChange = {},
                 placeholder = {
                     Text(text = "MM/YY")
@@ -302,6 +466,7 @@ fun CardPreviewFilled() {
             )
             androidx.compose.material.TextField(
                 value = "ABC",
+                label = { Text("CVC") },
                 onValueChange = {},
                 placeholder = {
                     Text(text = "CVC")
@@ -320,6 +485,7 @@ fun CardPreviewOutlined() {
         androidx.compose.material.OutlinedTextField(
             value = "",
             onValueChange = {},
+            label = { Text("Number") },
             placeholder = {
                 Text(text = "placeholder")
             },
@@ -331,6 +497,7 @@ fun CardPreviewOutlined() {
             androidx.compose.material.OutlinedTextField(
                 value = "",
                 onValueChange = {},
+                label = { Text("MM/YY") },
                 placeholder = {
                     Text(text = "MM/YY")
                 },
@@ -338,9 +505,10 @@ fun CardPreviewOutlined() {
             )
             androidx.compose.material.OutlinedTextField(
                 value = "ABC",
+                label = { Text("CVC") },
                 onValueChange = {},
                 placeholder = {
-                    Text(text = "CVC")
+                    Text(text = "123")
                 },
                 isError = true,
                 modifier = Modifier.padding(top = 10.dp, start = 10.dp)
