@@ -1,5 +1,6 @@
 package com.stripe.android.model
 
+import com.stripe.android.core.model.StripeJsonUtils
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.test.Test
