@@ -8,12 +8,15 @@ import com.stripe.android.paymentsheet.viewmodels.BaseSheetViewModel
  * progress as follows: Ready -> StartProcessing -> FinishProcessing -> ProcessResult
  */
 internal sealed class PaymentSheetViewState(
-    val errorMessage: BaseSheetViewModel.UserErrorMessage? = null
+    val errorMessage: BaseSheetViewModel.UserErrorMessage? = null,
 ) {
-    data class Reset(private val message: BaseSheetViewModel.UserErrorMessage? = null) :
-        PaymentSheetViewState(message)
+    data class Reset(
+        private val message: BaseSheetViewModel.UserErrorMessage? = null
+    ) : PaymentSheetViewState(message)
 
-    object StartProcessing : PaymentSheetViewState(null)
+    object PreProcessing : PaymentSheetViewState()
+
+    object StartProcessing : PaymentSheetViewState()
 
     data class FinishProcessing(
         val onComplete: () -> Unit

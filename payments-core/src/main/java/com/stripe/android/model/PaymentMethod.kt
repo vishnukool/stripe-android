@@ -127,7 +127,7 @@ constructor(
 
     @JvmField val netbanking: Netbanking? = null,
 
-    internal val usBankAccount: USBankAccount? = null
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @JvmField val usBankAccount: USBankAccount? = null
 ) : StripeModel {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For paymentsheet

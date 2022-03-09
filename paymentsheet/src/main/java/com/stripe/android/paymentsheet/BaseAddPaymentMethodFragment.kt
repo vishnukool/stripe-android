@@ -19,6 +19,7 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import com.stripe.android.core.injection.InjectorKey
 import com.stripe.android.model.CardBrand
+import com.stripe.android.model.PaymentMethod
 import com.stripe.android.model.StripeIntent
 import com.stripe.android.paymentsheet.databinding.FragmentPaymentsheetAddPaymentMethodBinding
 import com.stripe.android.paymentsheet.forms.FormFieldValues
@@ -27,6 +28,7 @@ import com.stripe.android.paymentsheet.model.SupportedPaymentMethod
 import com.stripe.android.paymentsheet.paymentdatacollection.ComposeFormDataCollectionFragment
 import com.stripe.android.paymentsheet.paymentdatacollection.FormFragmentArguments
 import com.stripe.android.paymentsheet.paymentdatacollection.TransformToPaymentMethodCreateParams
+import com.stripe.android.paymentsheet.paymentdatacollection.ach.USBankAccountFormFragment
 import com.stripe.android.paymentsheet.ui.AnimationConstants
 import com.stripe.android.paymentsheet.viewmodels.BaseSheetViewModel
 import com.stripe.android.ui.core.Amount
@@ -178,7 +180,7 @@ internal abstract class BaseAddPaymentMethodFragment : Fragment() {
             )
             replace(
                 R.id.payment_method_fragment_container,
-                ComposeFormDataCollectionFragment::class.java,
+                fragmentForPaymentMethod(paymentMethod),
                 args
             )
         }
@@ -188,6 +190,13 @@ internal abstract class BaseAddPaymentMethodFragment : Fragment() {
         childFragmentManager.findFragmentById(R.id.payment_method_fragment_container)
 
     companion object {
+
+        private fun fragmentForPaymentMethod(paymentMethod: SupportedPaymentMethod) =
+            when (paymentMethod.type) {
+                PaymentMethod.Type.USBankAccount -> USBankAccountFormFragment::class.java
+                else -> ComposeFormDataCollectionFragment::class.java
+            }
+
         private val transformToPaymentMethodCreateParams = TransformToPaymentMethodCreateParams()
 
         @VisibleForTesting
