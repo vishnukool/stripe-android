@@ -122,6 +122,10 @@ class LauncherActivity : AppCompatActivity() {
                 NetbankingPaymentActivity::class.java
             ),
             Item(
+                "US Bank Account Example",
+                USBankAccountPaymentMethodActivity::class.java
+            ),
+            Item(
                 activity.getString(R.string.card_brands),
                 CardBrandsActivity::class.java
             ),

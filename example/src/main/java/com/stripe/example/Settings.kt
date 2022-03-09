@@ -44,7 +44,7 @@ class Settings(context: Context) {
          * [example-mobile-backend](https://github.com/stripe/example-mobile-backend),
          * the URL will be something like `https://hidden-beach-12345.herokuapp.com/`.
          */
-        private const val BASE_URL = "put your base url here"
+        private const val BASE_URL = "https://stp-mobile-ci-test-backend-e1b3.stripedemos.com/"
 
         /**
          * Note: only necessary if not configured via `gradle.properties`.

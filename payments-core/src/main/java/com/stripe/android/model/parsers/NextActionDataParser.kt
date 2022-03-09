@@ -22,6 +22,7 @@ internal class NextActionDataParser : ModelJsonParser<StripeIntent.NextActionDat
             StripeIntent.NextActionType.AlipayRedirect -> AlipayRedirectParser()
             StripeIntent.NextActionType.BlikAuthorize -> BlikAuthorizeParser()
             StripeIntent.NextActionType.WeChatPayRedirect -> WeChatPayRedirectParser()
+            StripeIntent.NextActionType.VerifyWithMicroDeposits -> VerifyWithMicrodepositsParser()
             else -> return null
         }
         return parser.parse(json.optJSONObject(nextActionType.code) ?: JSONObject())
@@ -181,6 +182,23 @@ internal class NextActionDataParser : ModelJsonParser<StripeIntent.NextActionDat
             private const val PREPAY_ID = "prepay_id"
             private const val TIMESTAMP = "timestamp"
             private const val SIGN = "sign"
+        }
+    }
+
+    internal class VerifyWithMicrodepositsParser :
+        ModelJsonParser<StripeIntent.NextActionData.VerifyWithMicrodeposits> {
+        override fun parse(json: JSONObject): StripeIntent.NextActionData.VerifyWithMicrodeposits {
+            return StripeIntent.NextActionData.VerifyWithMicrodeposits(
+                arrivalDate = json.optLong(ARRIVAL_DATE),
+                hostedVerificationUrl = json.optString(HOSTED_VERIFICATION_URL),
+                microdepositType = json.optString(MICRODEPOSIT_TYPE)
+            )
+        }
+
+        private companion object {
+            private const val ARRIVAL_DATE = "arrival_date"
+            private const val HOSTED_VERIFICATION_URL = "hosted_verification_url"
+            private const val MICRODEPOSIT_TYPE = "microdeposit_type"
         }
     }
 

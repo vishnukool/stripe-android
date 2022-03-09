@@ -377,7 +377,7 @@ internal class PaymentSheetViewModel @Inject internal constructor(
 
     private fun processPayment(stripeIntent: StripeIntent, paymentResult: PaymentResult) {
         when (paymentResult) {
-            PaymentResult.Completed -> {
+            is PaymentResult.Completed -> {
                 eventReporter.onPaymentSuccess(selection.value)
 
                 // SavedSelection needs to happen after new cards have been saved.

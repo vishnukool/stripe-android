@@ -27,6 +27,10 @@ import com.stripe.android.ui.core.elements.SectionFieldSpec
 import com.stripe.android.ui.core.elements.SectionSpec
 import com.stripe.android.ui.core.elements.SimpleTextSpec
 import com.stripe.android.ui.core.elements.StaticTextSpec
+import com.stripe.android.ui.core.elements.USBankAccountNumberSpec
+import com.stripe.android.ui.core.elements.USBankAccountOwnerTypeDropdownSpec
+import com.stripe.android.ui.core.elements.USBankAccountTypeDropdownSpec
+import com.stripe.android.ui.core.elements.USBankRoutingNumberSpec
 import com.stripe.android.ui.core.forms.resources.ResourceRepository
 
 /**
@@ -124,6 +128,10 @@ class TransformSpecToElements(
                 )
                 is AuBankAccountNumberSpec -> it.transform()
                 is BsbSpec -> it.transform()
+                is USBankAccountNumberSpec -> it.transform()
+                is USBankRoutingNumberSpec -> it.transform()
+                is USBankAccountOwnerTypeDropdownSpec -> it.transform()
+                is USBankAccountTypeDropdownSpec -> it.transform()
             }
         }
 }
