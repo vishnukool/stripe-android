@@ -3,6 +3,7 @@ package com.stripe.android.paymentsheet.ui
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.GradientDrawable
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
@@ -23,6 +24,8 @@ import com.stripe.android.paymentsheet.databinding.PrimaryButtonBinding
 import com.stripe.android.ui.core.PaymentsTheme
 import com.stripe.android.ui.core.PaymentsThemeConfig
 import com.stripe.android.ui.core.convertDpToPx
+import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
 
 /**
  * The primary call-to-action for a payment sheet screen.
@@ -100,7 +103,7 @@ internal class PrimaryButton @JvmOverloads constructor(
 
     fun setLabel(text: String?) {
         externalLabel = text
-        if (state !is State.StartProcessing) {
+        if (state !is State.StartProcessing && state !is State.PreProcessing) {
             originalLabel = text
         }
         text?.let {
@@ -110,9 +113,14 @@ internal class PrimaryButton @JvmOverloads constructor(
         }
     }
 
-    private fun onReadyState() {
+    private fun onReadyState(buttonText: String? = null) {
         originalLabel?.let {
             setLabel(it)
+        }
+        buttonText?.let {
+            viewBinding.label.setContent {
+                LabelUI(label = buttonText)
+            }
         }
         defaultTintList?.let {
             backgroundTintList = it
@@ -153,14 +161,20 @@ internal class PrimaryButton @JvmOverloads constructor(
         updateAlpha()
 
         when (state) {
+            is State.PreProcessing -> {
+                onReadyState(state.buttonText)
+            }
             is State.Ready -> {
                 onReadyState()
             }
-            State.StartProcessing -> {
+            is State.StartProcessing -> {
                 onStartProcessing()
             }
             is State.FinishProcessing -> {
                 onFinishProcessing(state.onComplete)
+            }
+            else -> {
+                // no op
             }
         }
     }
@@ -170,7 +184,10 @@ internal class PrimaryButton @JvmOverloads constructor(
             viewBinding.label,
             viewBinding.lockIcon
         ).forEach { view ->
-            view.alpha = if ((state == null || state is State.Ready) && !isEnabled) {
+            view.alpha = if (
+                (state == null || state is State.Ready || state is State.PreProcessing) &&
+                !isEnabled
+            ) {
                 0.5f
             } else {
                 1.0f
@@ -182,6 +199,7 @@ internal class PrimaryButton @JvmOverloads constructor(
         /**
          * The label will be applied if the value is not null.
          */
+        data class PreProcessing(val buttonText: String? = null) : State()
         object Ready : State()
         object StartProcessing : State()
         data class FinishProcessing(val onComplete: () -> Unit) : State()
@@ -198,3 +216,10 @@ private fun LabelUI(label: String) {
         modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 4.dp, bottom = 5.dp)
     )
 }
+
+@Parcelize
+internal data class PrimaryButtonUIState(
+    val state: @RawValue PrimaryButton.State,
+    val enabled: Boolean,
+    val onPress: () -> Unit = {}
+) : Parcelable

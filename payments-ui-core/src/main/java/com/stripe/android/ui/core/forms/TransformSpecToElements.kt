@@ -24,6 +24,7 @@ import com.stripe.android.ui.core.elements.IdentifierSpec
 import com.stripe.android.ui.core.elements.KlarnaCountrySpec
 import com.stripe.android.ui.core.elements.LayoutSpec
 import com.stripe.android.ui.core.elements.MandateTextSpec
+import com.stripe.android.ui.core.elements.OptionalEmailSpec
 import com.stripe.android.ui.core.elements.SaveForFutureUseSpec
 import com.stripe.android.ui.core.elements.SectionController
 import com.stripe.android.ui.core.elements.SectionElement
@@ -31,6 +32,7 @@ import com.stripe.android.ui.core.elements.SectionFieldSpec
 import com.stripe.android.ui.core.elements.SectionSpec
 import com.stripe.android.ui.core.elements.SimpleTextSpec
 import com.stripe.android.ui.core.elements.StaticTextSpec
+import com.stripe.android.ui.core.elements.USBankAccountDetailsSpec
 import com.stripe.android.ui.core.forms.resources.ResourceRepository
 
 /**
@@ -72,6 +74,7 @@ class TransformSpecToElements(
                 is EmptyFormSpec -> EmptyFormElement()
                 is AuBecsDebitMandateTextSpec -> it.transform(merchantName)
                 is BsbSpec -> it.transform()
+                is USBankAccountDetailsSpec -> it.transform()
             }
         }
 
@@ -115,6 +118,7 @@ class TransformSpecToElements(
         this.map {
             when (it) {
                 is EmailSpec -> it.transform(initialValues[IdentifierSpec.Email])
+                is OptionalEmailSpec -> it.transform(initialValues[IdentifierSpec.Email])
                 is IbanSpec -> it.transform()
                 is BankDropdownSpec -> it.transform(bankRepository)
                 is SimpleTextSpec -> it.transform(initialValues)

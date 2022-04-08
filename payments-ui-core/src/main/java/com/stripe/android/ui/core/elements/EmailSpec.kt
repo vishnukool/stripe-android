@@ -12,3 +12,13 @@ object EmailSpec : SectionFieldSpec(IdentifierSpec.Email) {
             SimpleTextFieldController(EmailConfig(), initialValue = email),
         )
 }
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Parcelize
+object OptionalEmailSpec : SectionFieldSpec(IdentifierSpec.Email) {
+    fun transform(email: String?): SectionFieldElement =
+        EmailElement(
+            this.identifier,
+            SimpleTextFieldController(EmailConfig(), initialValue = email, showOptionalLabel = true),
+        )
+}

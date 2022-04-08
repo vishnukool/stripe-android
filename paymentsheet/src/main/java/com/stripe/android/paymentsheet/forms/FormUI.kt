@@ -35,6 +35,8 @@ import com.stripe.android.ui.core.elements.SectionElement
 import com.stripe.android.ui.core.elements.SectionElementUI
 import com.stripe.android.ui.core.elements.StaticElementUI
 import com.stripe.android.ui.core.elements.StaticTextElement
+import com.stripe.android.ui.core.elements.USBankAccountDetailsElement
+import com.stripe.android.ui.core.elements.USBankAccountDetailsElementUI
 import com.stripe.android.ui.core.shouldUseDarkDynamicColor
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -87,6 +89,7 @@ internal fun FormInternal(
                         is MandateTextElement -> MandateTextUI(element)
                         is BsbElement -> BsbElementUI(enabled, element, lastTextFieldIdentifier)
                         is EmptyFormElement -> {}
+                        is USBankAccountDetailsElement -> USBankAccountDetailsElementUI(element)
                     }
                 }
             }

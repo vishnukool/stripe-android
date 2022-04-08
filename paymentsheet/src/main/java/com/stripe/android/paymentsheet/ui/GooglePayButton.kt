@@ -93,11 +93,14 @@ internal class GooglePayButton @JvmOverloads constructor(
             is PrimaryButton.State.Ready -> {
                 onReadyState()
             }
-            PrimaryButton.State.StartProcessing -> {
+            is PrimaryButton.State.StartProcessing -> {
                 onStartProcessing()
             }
             is PrimaryButton.State.FinishProcessing -> {
                 onFinishProcessing()
+            }
+            else -> {
+                // do nothing
             }
         }
     }

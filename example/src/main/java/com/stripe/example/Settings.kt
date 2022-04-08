@@ -44,14 +44,14 @@ class Settings(context: Context) {
          * [example-mobile-backend](https://github.com/stripe/example-mobile-backend),
          * the URL will be something like `https://hidden-beach-12345.herokuapp.com/`.
          */
-        private const val BASE_URL = "https://stp-mobile-ci-test-backend-e1b3.stripedemos.com/"
+        private const val BASE_URL = "put your base url here"
 
         /**
          * Note: only necessary if not configured via `gradle.properties`.
          *
          * Set to publishable key from https://dashboard.stripe.com/test/apikeys
          */
-        private const val PUBLISHABLE_KEY = "pk_test_51HvTI7Lu5o3P18Zp6t5AgBSkMvWoTtA0nyA7pVYDqpfLkRtWun7qZTYCOHCReprfLM464yaBeF72UFfB7cY9WG4a00ZnDtiC2C"
+        private const val PUBLISHABLE_KEY = "pk_test_your_key_goes_here"
 
         /**
          * Note: only necessary if not configured via `gradle.properties`.

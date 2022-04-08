@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ScrollView
 import android.widget.TextView
@@ -13,6 +14,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.stringResource
 import androidx.core.os.bundleOf
 import androidx.core.view.doOnNextLayout
 import androidx.core.view.isVisible
@@ -26,11 +28,16 @@ import com.stripe.android.paymentsheet.PaymentSheetViewModel.CheckoutIdentifier
 import com.stripe.android.paymentsheet.databinding.ActivityPaymentSheetBinding
 import com.stripe.android.paymentsheet.model.PaymentSelection
 import com.stripe.android.paymentsheet.model.PaymentSheetViewState
+import com.stripe.android.paymentsheet.model.USBankAccountStep
+import com.stripe.android.paymentsheet.paymentdatacollection.ComposeFormDataCollectionFragment
 import com.stripe.android.paymentsheet.model.SupportedPaymentMethod
 import com.stripe.android.paymentsheet.ui.AnimationConstants
 import com.stripe.android.paymentsheet.ui.BaseSheetActivity
 import com.stripe.android.paymentsheet.ui.GooglePayDividerUi
+import com.stripe.android.ui.core.PaymentsTheme
 import com.stripe.android.ui.core.PaymentsThemeConfig
+import com.stripe.android.ui.core.elements.Html
+import com.stripe.android.ui.core.elements.USBankAccountDetailsElement
 import com.stripe.android.ui.core.isSystemDarkTheme
 import com.stripe.android.ui.core.shouldUseDarkDynamicColor
 import kotlinx.coroutines.launch
@@ -195,6 +202,22 @@ internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>() {
         viewModel.selection.observe(this) {
             clearErrorMessages()
         }
+
+        viewModel.notesTextState.observe(this) { stringResource ->
+            stringResource?.let {
+                viewBinding.notes.setContent {
+                    Html(
+                        html = stringResource(id = stringResource),
+                        imageGetter = emptyMap(),
+                        color = PaymentsTheme.colors.subtitle,
+                        style = PaymentsTheme.typography.body1,
+                    )
+                }
+                viewBinding.notes.visibility = View.VISIBLE
+            } ?: run {
+                viewBinding.notes.visibility = View.GONE
+            }
+        }
     }
 
     private fun onTransitionTarget(
@@ -259,7 +282,50 @@ internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>() {
                 resources.getString(R.string.stripe_setup_button_label)
             )
         }
+        viewModel.viewState.observe(this) {
+            if (it is PaymentSheetViewState.PreProcessing && it.step is USBankAccountStep) {
+                when (val step = it.step) {
+                    is USBankAccountStep.NameAndEmailCollection -> {
+                        viewBinding.buyButton.updateState(it.convert())
+                    }
+                    is USBankAccountStep.BankAccountCollection -> {
+                        viewModel.collectBankAccount()
+                    }
+                    is USBankAccountStep.MandateCollection -> {
+                        (
+                            supportFragmentManager.fragments.firstOrNull() as?
+                                BaseAddPaymentMethodFragment
+                            )?.let {
+                            (
+                                it.childFragmentManager.fragments.firstOrNull() as?
+                                    ComposeFormDataCollectionFragment
+                                )?.let {
+                                val element = it.formViewModel.elements.value
+                                    ?.filterIsInstance<USBankAccountDetailsElement>()
+                                    ?.firstOrNull()
 
+                                element?.controller?.text?.tryEmit(step.accountDetails)
+                                element?.controller?.visible?.tryEmit(true)
+
+                                lifecycleScope.launchWhenStarted {
+                                    element?.controller?.detailsClicked?.collect {
+                                        if (it) {
+                                            element.controller.visible.tryEmit(false)
+                                            viewModel._viewState.postValue(
+                                                PaymentSheetViewState.PreProcessing(
+                                                    step = USBankAccountStep.NameAndEmailCollection
+                                                )
+                                            )
+                                            element.controller.detailsClicked.tryEmit(false)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         viewModel.getButtonStateObservable(CheckoutIdentifier.SheetBottomBuy)
             .observe(this, buyButtonStateObserver)
 
@@ -269,9 +335,31 @@ internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>() {
             )
         )
 
-        viewBinding.buyButton.setOnClickListener {
-            clearErrorMessages()
+        val buyButtonListener = {
+            updateErrorMessage(topMessage)
             viewModel.checkout(CheckoutIdentifier.SheetBottomBuy)
+            viewModel.buyButtonPressed()
+        }
+
+        viewBinding.buyButton.setOnClickListener {
+            buyButtonListener()
+        }
+
+        viewModel.primaryButtonUIState.observe(this) { state ->
+            viewBinding.buyButton.updateState(state.state)
+            viewBinding.buyButton.isEnabled = state.enabled
+            viewBinding.buyButton.setOnClickListener {
+                updateErrorMessage(topMessage)
+                state.onPress()
+                viewModel.buyButtonPressed()
+            }
+        }
+
+        viewModel.onPaymentMethodDetach.observe(this) {
+            viewBinding.buyButton.setOnClickListener {
+                buyButtonListener()
+            }
+            viewModel._viewState.value = PaymentSheetViewState.Reset()
         }
 
         viewModel.ctaEnabled.observe(this) { isEnabled ->

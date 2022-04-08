@@ -1,12 +1,12 @@
 package com.stripe.android.paymentsheet.viewmodels
 
 import android.app.Application
-import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -172,6 +172,10 @@ internal abstract class BaseSheetViewModel<TransitionTargetType>(
     protected var linkActivityResultLauncher:
         ActivityResultLauncher<LinkActivityContract.Args>? = null
 
+    private val _currentPaymentMethod = MutableLiveData<SupportedPaymentMethod>()
+    val currentPaymentMethod: LiveData<SupportedPaymentMethod>
+        get() = _currentPaymentMethod
+
     /**
      * This should be initialized from the starter args, and then from that
      * point forward it will be the last valid card seen or entered in the add card view.
@@ -336,6 +340,9 @@ internal abstract class BaseSheetViewModel<TransitionTargetType>(
         logger.warning(message)
     }
 
+    open fun onPaymentMethodSelected(paymentMethod: SupportedPaymentMethod) {
+    }
+
     fun updateSelection(selection: PaymentSelection?) {
         savedStateHandle[SAVE_SELECTION] = selection
     }
@@ -398,8 +405,8 @@ internal abstract class BaseSheetViewModel<TransitionTargetType>(
      * Used to set up any dependencies that require a reference to the current Activity.
      * Must be called from the Activity's `onCreate`.
      */
-    open fun registerFromActivity(activityResultCaller: ActivityResultCaller) {
-        linkActivityResultLauncher = activityResultCaller.registerForActivityResult(
+    open fun registerFromActivity(activity: AppCompatActivity) {
+        linkActivityResultLauncher = activity.registerForActivityResult(
             LinkActivityContract(),
             ::onLinkPaymentResult
         )

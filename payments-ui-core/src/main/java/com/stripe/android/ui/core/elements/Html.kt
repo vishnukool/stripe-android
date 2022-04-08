@@ -47,7 +47,7 @@ import com.stripe.android.ui.core.PaymentsTheme
 
 private const val LINK_TAG = "URL"
 
-internal data class EmbeddableImage(
+data class EmbeddableImage(
     @DrawableRes val id: Int,
     @StringRes val contentDescription: Int
 )
@@ -58,7 +58,7 @@ internal data class EmbeddableImage(
  * The source value in the img tab, must map to something in the imageGetter.
  */
 @Composable
-internal fun Html(
+fun Html(
     html: String,
     imageGetter: Map<String, EmbeddableImage>,
     modifier: Modifier = Modifier,
