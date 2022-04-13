@@ -6,13 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -20,26 +24,33 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.stripe.android.PaymentConfiguration
-import com.stripe.android.payments.bankaccount.CollectBankAccountConfiguration
-import com.stripe.android.payments.bankaccount.CollectBankAccountLauncher
-import com.stripe.android.payments.bankaccount.navigation.CollectBankAccountResult
 import com.stripe.android.paymentsheet.PaymentSheetActivity
 import com.stripe.android.paymentsheet.PaymentSheetViewModel
 import com.stripe.android.paymentsheet.R
+import com.stripe.android.paymentsheet.ui.PrimaryButton
 import com.stripe.android.ui.core.PaymentsTheme
+import com.stripe.android.ui.core.elements.H6Text
+import com.stripe.android.ui.core.elements.Html
+import com.stripe.android.ui.core.elements.IdentifierSpec
 import com.stripe.android.ui.core.elements.SectionCard
+import com.stripe.android.ui.core.elements.SectionController
+import com.stripe.android.ui.core.elements.SectionElement
+import com.stripe.android.ui.core.elements.SectionElementUI
 
 /**
  * Fragment that displays a form for us_bank_account payment data collection
@@ -64,35 +75,16 @@ internal class USBankAccountFormFragment : Fragment() {
     private val viewModel by viewModels<USBankAccountFormViewModel> {
         USBankAccountFormViewModel.Factory(
             { requireActivity().application },
-            { PaymentConfiguration.getInstance(requireContext()).publishableKey },
             this
         )
     }
 
-    private lateinit var collectBankAccountLauncher: CollectBankAccountLauncher
+    private lateinit var primaryButton: PrimaryButton
+    private lateinit var notes: ComposeView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        collectBankAccountLauncher = CollectBankAccountLauncher.create(
-            this@USBankAccountFormFragment
-        ) { result ->
-            viewModel.handleCollectBankAccountResult(result)
-            when (result) {
-                is CollectBankAccountResult.Completed -> {}
-                is CollectBankAccountResult.Failed -> {
-                    sheetViewModel.handleUSBankAccountFormViewEffect(
-                        USBankAccountFormViewEffect.Error(
-                            getString(R.string.us_bank_account_payment_sheet_something_went_wrong)
-                        )
-                    )
-                }
-                is CollectBankAccountResult.Cancelled -> {
-                    sheetViewModel.handleUSBankAccountFormViewEffect(
-                        USBankAccountFormViewEffect.Error(null)
-                    )
-                }
-            }
-        }
+        viewModel.registerFragment(this)
     }
 
     override fun onCreateView(
@@ -104,22 +96,27 @@ internal class USBankAccountFormFragment : Fragment() {
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
+
+        primaryButton = requireActivity().findViewById(R.id.buy_button)
+        notes = requireActivity().findViewById(R.id.notes)
+
         lifecycleScope.launchWhenStarted {
-            sheetViewModel.handleUSBankAccountFormViewEffect(USBankAccountFormViewEffect.Init)
+            viewModel.requiredFields.collect {
+                primaryButton.isEnabled = it
+            }
+        }
+        lifecycleScope.launchWhenStarted {
             viewModel.currentScreenState.collect { screenState ->
                 when (screenState) {
                     is USBankAccountFormScreenState.NameAndEmailCollection -> {
-                        sheetViewModel.primaryButtonPressed.removeObservers(viewLifecycleOwner)
-                        sheetViewModel.primaryButtonPressed.observe(viewLifecycleOwner) {
-                            viewModel.primaryButtonPressed(screenState)
-                            collectBankAccountLauncher.presentWithPaymentIntent(
-                                PaymentConfiguration.getInstance(requireContext()).publishableKey,
-                                sheetViewModel.args.clientSecret.value,
-                                CollectBankAccountConfiguration.USBankAccount(
-                                    viewModel.name.value,
-                                    viewModel.email.value
-                                )
+                        notes.visibility = View.GONE
+                        primaryButton.updateState(
+                            PrimaryButton.State.Ready(
+                                getString(R.string.us_bank_account_payment_sheet_primary_button_continue)
                             )
+                        )
+                        primaryButton.setOnClickListener {
+                            viewModel.collectBankAccount(sheetViewModel.args.clientSecret)
                         }
                         setContent {
                             PaymentsTheme {
@@ -128,14 +125,22 @@ internal class USBankAccountFormFragment : Fragment() {
                         }
                     }
                     is USBankAccountFormScreenState.MandateCollection -> {
-                        sheetViewModel.primaryButtonPressed.removeObservers(viewLifecycleOwner)
-                        sheetViewModel.primaryButtonPressed.observe(viewLifecycleOwner) {
-                            viewModel.primaryButtonPressed(screenState)
-                            sheetViewModel.handleUSBankAccountFormViewEffect(
-                                USBankAccountFormViewEffect.BankAccountCollected(
-                                    paymentIntentId = screenState.paymentIntentId,
-                                    linkedAccountId = screenState.linkedAccountId
-                                )
+                        notes.visibility = View.VISIBLE
+                        notes.setContent {
+                            Html(
+                                html = stringResource(R.string.us_bank_account_payment_sheet_mandate),
+                                imageGetter = emptyMap(),
+                                color = PaymentsTheme.colors.subtitle,
+                                style = PaymentsTheme.typography.body1,
+                            )
+                        }
+                        primaryButton.updateState(PrimaryButton.State.Ready())
+                        primaryButton.setOnClickListener {
+                            primaryButton.updateState(PrimaryButton.State.StartProcessing)
+                            viewModel.confirm(
+                                sheetViewModel.args.clientSecret,
+                                screenState.intentId,
+                                screenState.linkedAccountId,
                             )
                         }
                         setContent {
@@ -148,19 +153,64 @@ internal class USBankAccountFormFragment : Fragment() {
                             }
                         }
                     }
+                    is USBankAccountFormScreenState.VerifyWithMicrodeposits -> {
+                        val formattedMerchantName = sheetViewModel.args.config?.merchantDisplayName?.trimEnd { it == '.' }
+                        notes.visibility = View.VISIBLE
+                        formattedMerchantName?.let {
+                            notes.setContent {
+                                Html(
+                                    html = stringResource(
+                                        R.string.us_bank_account_payment_sheet_mandate_verify_with_microdeposit,
+                                        formattedMerchantName
+                                    ),
+                                    imageGetter = emptyMap(),
+                                    color = PaymentsTheme.colors.subtitle,
+                                    style = PaymentsTheme.typography.body1,
+                                )
+                            }
+                        }
+                        primaryButton.updateState(
+                            PrimaryButton.State.Ready(
+                                getString(R.string.us_bank_account_payment_sheet_primary_button_verify_account)
+                            )
+                        )
+                        primaryButton.setOnClickListener {
+                            primaryButton.updateState(PrimaryButton.State.StartProcessing)
+                            viewModel.confirm(
+                                sheetViewModel.args.clientSecret,
+                                screenState.intentId,
+                                screenState.linkedAccountId,
+                            )
+                        }
+                        setContent {
+                            PaymentsTheme {
+                                VerifyWithMicrodepositsScreen(
+                                    screenState.bankName,
+                                    screenState.displayName,
+                                    screenState.last4
+                                )
+                            }
+                        }
+                    }
+                    is USBankAccountFormScreenState.ProcessPayment -> {
+                        sheetViewModel.onPaymentResult(screenState.result)
+                    }
                 }
             }
         }
     }
 
     override fun onDestroy() {
-        sheetViewModel.detachPaymentMethod()
+        viewModel.onDestroy()
+        sheetViewModel.resetViewState(null)
         super.onDestroy()
     }
 
     @Composable
     private fun NameAndEmailCollectionScreen() {
-        NameAndEmailForm()
+        Column(Modifier.fillMaxWidth()) {
+            NameAndEmailForm()
+        }
     }
 
     @Composable
@@ -169,7 +219,19 @@ internal class USBankAccountFormFragment : Fragment() {
         displayName: String?,
         last4: String?
     ) {
-        Column(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxWidth()) {
+            NameAndEmailForm()
+            AccountDetailsForm(bankName, displayName, last4)
+        }
+    }
+
+    @Composable
+    private fun VerifyWithMicrodepositsScreen(
+        bankName: String?,
+        displayName: String?,
+        last4: String?
+    ) {
+        Column(Modifier.fillMaxWidth()) {
             NameAndEmailForm()
             AccountDetailsForm(bankName, displayName, last4)
         }
@@ -177,35 +239,49 @@ internal class USBankAccountFormFragment : Fragment() {
 
     @Composable
     private fun NameAndEmailForm() {
-        val name by viewModel.name.collectAsState("")
-        val email by viewModel.email.collectAsState("")
-
-        Column(Modifier.fillMaxSize()) {
-            SectionCard(modifier = Modifier.padding(top = 16.dp)) {
-                TextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Full name") },
-                    value = name,
-                    onValueChange = {
-                        viewModel.updateName(it)
-                        sheetViewModel.handleUSBankAccountFormViewEffect(
-                            USBankAccountFormViewEffect.RequiredFieldsCollected(
-                                name = name
-                            )
+        Column(Modifier.fillMaxWidth()) {
+            H6Text(
+                text = stringResource(R.string.us_bank_account_payment_sheet_title),
+                modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                SectionElementUI(
+                    enabled = true,
+                    element = SectionElement(
+                        identifier = IdentifierSpec.Name,
+                        fields = listOf(viewModel.nameElement),
+                        controller = SectionController(
+                            null,
+                            listOf(viewModel.nameElement.sectionFieldErrorController())
                         )
-                    },
-                    colors = textFieldColors()
+                    ),
+                    emptyList(),
+                    viewModel.nameElement.identifier
                 )
             }
-            SectionCard(modifier = Modifier.padding(top = 16.dp)) {
-                TextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Email") },
-                    value = email,
-                    onValueChange = {
-                        viewModel.updateEmail(it)
-                    },
-                    colors = textFieldColors()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                SectionElementUI(
+                    enabled = true,
+                    element = SectionElement(
+                        identifier = IdentifierSpec.Email,
+                        fields = listOf(viewModel.emailElement),
+                        controller = SectionController(
+                            null,
+                            listOf(viewModel.emailElement.sectionFieldErrorController())
+                        )
+                    ),
+                    emptyList(),
+                    viewModel.emailElement.identifier
                 )
             }
         }
@@ -217,33 +293,77 @@ internal class USBankAccountFormFragment : Fragment() {
         displayName: String?,
         last4: String?
     ) {
-        SectionCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(all = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.stripe_ic_bank),
-                    contentDescription = null,
+        val openDialog = remember { mutableStateOf(false) }
+        val bankNameIcon = mapOf(
+            "StripBank" to R.drawable.stripe_ic_bank
+        )
+        val bankIcon = bankNameIcon[bankName]
+        Column(
+            Modifier.fillMaxWidth()) {
+            H6Text(
+                text = stringResource(R.string.us_bank_account_payment_sheet_bank_account),
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+            SectionCard(modifier = Modifier.fillMaxWidth()) {
+                Row(
                     modifier = Modifier
-                        .height(40.dp)
-                        .width(56.dp)
-                )
-                Text(text = "$bankName $displayName ••••$last4")
-                Image(
-                    painter = painterResource(R.drawable.stripe_ic_trash),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .height(40.dp)
-                        .width(56.dp)
-                )
+                        .fillMaxWidth()
+                        .padding(all = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(bankIcon ?: R.drawable.stripe_ic_bank),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(40.dp)
+                                .width(56.dp)
+                        )
+                        Text(text = "$displayName ••••$last4", fontWeight = FontWeight.Bold)
+                    }
+                    Image(
+                        painter = painterResource(R.drawable.stripe_ic_clear),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .height(20.dp)
+                            .width(20.dp)
+                            .clickable {
+                                openDialog.value = true
+                            }
+                    )
+                }
             }
+        }
+        if (openDialog.value) {
+            AlertDialog(
+                onDismissRequest = {
+                    openDialog.value = false
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        openDialog.value = false
+                        viewModel.clearBank()
+                    }) {
+                        Text(stringResource(id = R.string.us_bank_account_payment_sheet_alert_remove))
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = {
+                        openDialog.value = false
+                    }) {
+                        Text(stringResource(id = R.string.us_bank_account_payment_sheet_alert_cancel))
+                    }
+                },
+                title = {
+                    Text(stringResource(id = R.string.us_bank_account_payment_sheet_alert_title))
+                },
+                text = {
+                    last4?.let {
+                        Text(text = stringResource(id = R.string.us_bank_account_payment_sheet_alert_text, last4))
+                    }
+                }
+            )
         }
     }
 

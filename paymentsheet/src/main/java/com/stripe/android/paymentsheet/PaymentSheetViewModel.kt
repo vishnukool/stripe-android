@@ -22,7 +22,6 @@ import com.stripe.android.core.injection.IOContext
 import com.stripe.android.core.injection.Injectable
 import com.stripe.android.core.injection.InjectorKey
 import com.stripe.android.core.injection.injectWithFallback
-import com.stripe.android.core.networking.ApiRequest
 import com.stripe.android.googlepaylauncher.GooglePayEnvironment
 import com.stripe.android.googlepaylauncher.GooglePayPaymentMethodLauncher
 import com.stripe.android.googlepaylauncher.GooglePayPaymentMethodLauncherContract
@@ -33,9 +32,7 @@ import com.stripe.android.model.ConfirmPaymentIntentParams
 import com.stripe.android.model.ConfirmSetupIntentParams
 import com.stripe.android.model.ConfirmStripeIntentParams
 import com.stripe.android.model.PaymentIntent
-import com.stripe.android.model.PaymentMethod
 import com.stripe.android.model.StripeIntent
-import com.stripe.android.networking.StripeRepository
 import com.stripe.android.payments.paymentlauncher.PaymentLauncher
 import com.stripe.android.payments.paymentlauncher.PaymentLauncherContract
 import com.stripe.android.payments.paymentlauncher.PaymentResult
@@ -46,13 +43,11 @@ import com.stripe.android.paymentsheet.injection.PaymentSheetViewModelModule
 import com.stripe.android.paymentsheet.injection.PaymentSheetViewModelSubcomponent
 import com.stripe.android.paymentsheet.model.ConfirmStripeIntentParamsFactory
 import com.stripe.android.paymentsheet.model.FragmentConfig
-import com.stripe.android.paymentsheet.ui.PrimaryButtonUIState
 import com.stripe.android.paymentsheet.model.PaymentIntentClientSecret
 import com.stripe.android.paymentsheet.model.PaymentSelection
 import com.stripe.android.paymentsheet.model.PaymentSheetViewState
 import com.stripe.android.paymentsheet.model.StripeIntentValidator
 import com.stripe.android.paymentsheet.model.SupportedPaymentMethod
-import com.stripe.android.paymentsheet.paymentdatacollection.ach.USBankAccountFormViewEffect
 import com.stripe.android.paymentsheet.repositories.CustomerRepository
 import com.stripe.android.paymentsheet.repositories.StripeIntentRepository
 import com.stripe.android.paymentsheet.ui.PrimaryButton
@@ -71,10 +66,8 @@ import kotlin.coroutines.CoroutineContext
  */
 internal fun PaymentSheetViewState.convert(): PrimaryButton.State {
     return when (this) {
-        is PaymentSheetViewState.PreProcessing ->
-            PrimaryButton.State.PreProcessing()
         is PaymentSheetViewState.Reset ->
-            PrimaryButton.State.Ready
+            PrimaryButton.State.Ready()
         is PaymentSheetViewState.StartProcessing ->
             PrimaryButton.State.StartProcessing
         is PaymentSheetViewState.FinishProcessing ->
@@ -89,7 +82,6 @@ internal class PaymentSheetViewModel @Inject internal constructor(
     eventReporter: EventReporter,
     // Properties provided through injection
     private val lazyPaymentConfig: Lazy<PaymentConfiguration>,
-    private val stripeRespository: StripeRepository,
     private val stripeIntentRepository: StripeIntentRepository,
     private val stripeIntentValidator: StripeIntentValidator,
     customerRepository: CustomerRepository,
@@ -200,26 +192,6 @@ internal class PaymentSheetViewModel @Inject internal constructor(
 
     internal var paymentLauncher: PaymentLauncher? = null
 
-    @VisibleForTesting
-    internal val _primaryButtonUIState = MutableLiveData<PrimaryButtonUIState>()
-    internal val primaryButtonUIState: LiveData<PrimaryButtonUIState>
-        get() = _primaryButtonUIState
-
-    @VisibleForTesting
-    internal val _primaryButtonPressed = MutableLiveData<Unit>()
-    internal val primaryButtonPressed: LiveData<Unit>
-        get() = _primaryButtonPressed
-
-    @VisibleForTesting
-    internal val _notesTextState = MutableLiveData<Int?>()
-    internal val notesTextState: LiveData<Int?>
-        get() = _notesTextState
-
-    @VisibleForTesting
-    internal val _onPaymentMethodDetach = MutableLiveData<Unit>()
-    internal val onPaymentMethodDetach: LiveData<Unit>
-        get() = _onPaymentMethodDetach
-
     init {
         eventReporter.onInit(config)
         if (googlePayLauncherConfig == null) {
@@ -321,7 +293,7 @@ internal class PaymentSheetViewModel @Inject internal constructor(
         }
     }
 
-    private fun resetViewState(@IntegerRes stringResId: Int?) {
+    fun resetViewState(@IntegerRes stringResId: Int?) {
         resetViewState(
             stringResId?.let { getApplication<Application>().resources.getString(it) }
         )
@@ -342,14 +314,6 @@ internal class PaymentSheetViewModel @Inject internal constructor(
         this.checkoutIdentifier = checkoutIdentifier
         savedStateHandle.set(SAVE_PROCESSING, true)
         _viewState.value = PaymentSheetViewState.StartProcessing
-    }
-
-    fun detachPaymentMethod() {
-        _onPaymentMethodDetach.postValue(Unit)
-    }
-
-    fun buyButtonPressed() {
-        _primaryButtonPressed.postValue(Unit)
     }
 
     fun checkout(checkoutIdentifier: CheckoutIdentifier) {
@@ -442,64 +406,6 @@ internal class PaymentSheetViewModel @Inject internal constructor(
             is LinkActivityResult.Failed -> PaymentResult.Failed(error)
         }
 
-    fun handleUSBankAccountFormViewEffect(state: USBankAccountFormViewEffect) {
-        when (state) {
-            is USBankAccountFormViewEffect.Init -> {
-                _primaryButtonUIState.postValue(
-                    PrimaryButtonUIState(
-                        PrimaryButton.State.PreProcessing("Link bank account"),
-                        false
-                    )
-                )
-            }
-            is USBankAccountFormViewEffect.RequiredFieldsCollected -> {
-                _primaryButtonUIState.postValue(
-                    _primaryButtonUIState.value?.copy(
-                        enabled = state.name.isNotEmpty(),
-                        onPress = {
-                            _viewState.postValue(PaymentSheetViewState.StartProcessing)
-                        }
-                    )
-                )
-            }
-            is USBankAccountFormViewEffect.BankAccountCollected -> {
-                _primaryButtonUIState.postValue(
-                    _primaryButtonUIState.value?.copy(
-                        state = PrimaryButton.State.Ready,
-                        onPress = {
-                            startProcessing(CheckoutIdentifier.SheetBottomBuy)
-                            viewModelScope.launch {
-                                stripeRespository.attachLinkAccountSessionToPaymentIntent(
-                                    args.clientSecret.value,
-                                    state.paymentIntentId,
-                                    state.linkedAccountId,
-                                    ApiRequest.Options(lazyPaymentConfig.get().publishableKey)
-                                )
-                                _startConfirm.value = Event(
-                                    ConfirmPaymentIntentParams.create(
-                                        clientSecret = args.clientSecret.value,
-                                        paymentMethodType = PaymentMethod.Type.USBankAccount
-                                    )
-                                )
-                            }
-                        }
-                    )
-                )
-                _notesTextState.postValue(
-                    R.string.us_bank_account_payment_sheet_mandate
-                )
-            }
-            is USBankAccountFormViewEffect.Error -> {
-                _viewState.postValue(
-                    PaymentSheetViewState.Reset(
-                        state.message?.let { UserErrorMessage(it) }
-                    )
-                )
-            }
-        }
-    }
-
-    @VisibleForTesting
     fun onPaymentResult(paymentResult: PaymentResult) {
         viewModelScope.launch {
             runCatching {

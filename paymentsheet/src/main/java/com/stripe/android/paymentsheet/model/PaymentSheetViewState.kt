@@ -14,8 +14,6 @@ internal sealed class PaymentSheetViewState(
         private val message: BaseSheetViewModel.UserErrorMessage? = null
     ) : PaymentSheetViewState(message)
 
-    object PreProcessing : PaymentSheetViewState()
-
     object StartProcessing : PaymentSheetViewState()
 
     data class FinishProcessing(

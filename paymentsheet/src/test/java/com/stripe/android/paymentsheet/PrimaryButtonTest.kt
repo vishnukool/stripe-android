@@ -44,7 +44,7 @@ class PrimaryButtonTest {
         assertThat(primaryButton.backgroundTintList).isNull()
 
         primaryButton.updateState(
-            PrimaryButton.State.Ready
+            PrimaryButton.State.Ready()
         )
         assertThat((primaryButton.background as GradientDrawable).color).isEqualTo(ColorStateList.valueOf(Color.BLACK))
     }
@@ -64,7 +64,7 @@ class PrimaryButtonTest {
         )
 
         primaryButton.updateState(
-            PrimaryButton.State.Ready
+            PrimaryButton.State.Ready()
         )
 
         assertThat(
@@ -97,7 +97,7 @@ class PrimaryButtonTest {
     @Test
     fun `after viewState ready and disabled, label alpha is 50pct`() {
         primaryButton.updateState(
-            PrimaryButton.State.Ready
+            PrimaryButton.State.Ready()
         )
         assertThat(primaryButton.viewBinding.label.alpha)
             .isEqualTo(0.5f)
@@ -108,7 +108,7 @@ class PrimaryButtonTest {
     @Test
     fun `after viewState ready and enabled, label alpha is 100pct`() {
         primaryButton.updateState(
-            PrimaryButton.State.Ready
+            PrimaryButton.State.Ready()
         )
         primaryButton.isEnabled = true
         assertThat(primaryButton.viewBinding.label.alpha)
@@ -123,7 +123,7 @@ class PrimaryButtonTest {
         primaryButton.isEnabled = true
 
         primaryButton.updateState(
-            PrimaryButton.State.Ready
+            PrimaryButton.State.Ready()
         )
         assertThat(primaryButton.viewBinding.label.alpha)
             .isEqualTo(1.0f)

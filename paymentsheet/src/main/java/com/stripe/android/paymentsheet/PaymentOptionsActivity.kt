@@ -128,7 +128,7 @@ internal class PaymentOptionsActivity : BaseSheetActivity<PaymentOptionResult>()
 
     private fun setupContinueButton(addButton: PrimaryButton) {
         viewBinding.continueButton.lockVisible = false
-        viewBinding.continueButton.updateState(PrimaryButton.State.Ready)
+        viewBinding.continueButton.updateState(PrimaryButton.State.Ready())
 
         viewModel.config?.let {
             viewBinding.continueButton.setDefaultBackGroundColor(

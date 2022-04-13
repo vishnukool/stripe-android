@@ -50,7 +50,7 @@ class GooglePayButtonTest {
         assertThat(googlePayButton.viewBinding.googlePayButtonIcon.isVisible).isFalse()
 
         googlePayButton.updateState(
-            PrimaryButton.State.Ready
+            PrimaryButton.State.Ready()
         )
         assertThat(primaryButton.isVisible).isFalse()
         assertThat((primaryButton.background as GradientDrawable).color).isNotNull()
@@ -96,7 +96,7 @@ class GooglePayButtonTest {
 
     @Test
     fun `ready view state and not enabled should be 50% alpha`() {
-        googlePayButton.updateState(PrimaryButton.State.Ready)
+        googlePayButton.updateState(PrimaryButton.State.Ready())
         googlePayButton.isEnabled = false
         assertThat(googlePayButton.viewBinding.googlePayButtonIcon.alpha)
             .isEqualTo(0.5f)
@@ -104,7 +104,7 @@ class GooglePayButtonTest {
 
     @Test
     fun `ready view state and enabled should be 100% alpha`() {
-        googlePayButton.updateState(PrimaryButton.State.Ready)
+        googlePayButton.updateState(PrimaryButton.State.Ready())
         googlePayButton.isEnabled = true
         assertThat(googlePayButton.viewBinding.googlePayButtonIcon.alpha)
             .isEqualTo(1.0f)

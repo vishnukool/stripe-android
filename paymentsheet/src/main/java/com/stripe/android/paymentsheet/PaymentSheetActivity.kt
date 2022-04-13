@@ -199,22 +199,6 @@ internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>() {
         viewModel.selection.observe(this) {
             clearErrorMessages()
         }
-
-        viewModel.notesTextState.observe(this) { stringResource ->
-            stringResource?.let {
-                viewBinding.notes.setContent {
-                    Html(
-                        html = stringResource(id = stringResource),
-                        imageGetter = emptyMap(),
-                        color = PaymentsTheme.colors.subtitle,
-                        style = PaymentsTheme.typography.body1,
-                    )
-                }
-                viewBinding.notes.visibility = View.VISIBLE
-            } ?: run {
-                viewBinding.notes.visibility = View.GONE
-            }
-        }
     }
 
     private fun onTransitionTarget(
@@ -290,31 +274,9 @@ internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>() {
         )
         viewBinding.buyButton.setCornerRadius(PaymentsThemeDefaults.shapes.cornerRadius)
 
-        val buyButtonListener = {
+        viewBinding.buyButton.setOnClickListener {
             updateErrorMessage(topMessage)
             viewModel.checkout(CheckoutIdentifier.SheetBottomBuy)
-            viewModel.buyButtonPressed()
-        }
-
-        viewBinding.buyButton.setOnClickListener {
-            buyButtonListener()
-        }
-
-        viewModel.primaryButtonUIState.observe(this) { state ->
-            viewBinding.buyButton.updateState(state.state)
-            viewBinding.buyButton.isEnabled = state.enabled
-            viewBinding.buyButton.setOnClickListener {
-                updateErrorMessage(topMessage)
-                state.onPress()
-                viewModel.buyButtonPressed()
-            }
-        }
-
-        viewModel.onPaymentMethodDetach.observe(this) {
-            viewBinding.buyButton.setOnClickListener {
-                buyButtonListener()
-            }
-            viewModel._viewState.value = PaymentSheetViewState.Reset()
         }
 
         viewModel.ctaEnabled.observe(this) { isEnabled ->

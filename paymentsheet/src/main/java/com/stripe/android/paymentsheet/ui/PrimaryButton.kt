@@ -107,7 +107,7 @@ internal class PrimaryButton @JvmOverloads constructor(
 
     fun setLabel(text: String?) {
         externalLabel = text
-        if (state !is State.StartProcessing && state !is State.PreProcessing) {
+        if (state !is State.StartProcessing) {
             originalLabel = text
         }
         text?.let {
@@ -165,11 +165,8 @@ internal class PrimaryButton @JvmOverloads constructor(
         updateAlpha()
 
         when (state) {
-            is State.PreProcessing -> {
-                onReadyState(state.buttonText)
-            }
             is State.Ready -> {
-                onReadyState()
+                onReadyState(state.buttonText)
             }
             is State.StartProcessing -> {
                 onStartProcessing()
@@ -189,8 +186,7 @@ internal class PrimaryButton @JvmOverloads constructor(
             viewBinding.lockIcon
         ).forEach { view ->
             view.alpha = if (
-                (state == null || state is State.Ready || state is State.PreProcessing) &&
-                !isEnabled
+                (state == null || state is State.Ready) && !isEnabled
             ) {
                 0.5f
             } else {
@@ -203,8 +199,7 @@ internal class PrimaryButton @JvmOverloads constructor(
         /**
          * The label will be applied if the value is not null.
          */
-        data class PreProcessing(val buttonText: String? = null) : State()
-        object Ready : State()
+        data class Ready(val buttonText: String? = null) : State()
         object StartProcessing : State()
         data class FinishProcessing(val onComplete: () -> Unit) : State()
     }
