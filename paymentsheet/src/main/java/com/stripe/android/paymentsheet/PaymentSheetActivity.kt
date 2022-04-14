@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ScrollView
 import android.widget.TextView
@@ -14,7 +13,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.res.stringResource
 import androidx.core.os.bundleOf
 import androidx.core.view.doOnNextLayout
 import androidx.core.view.isVisible
@@ -33,8 +31,6 @@ import com.stripe.android.paymentsheet.ui.AnimationConstants
 import com.stripe.android.paymentsheet.ui.BaseSheetActivity
 import com.stripe.android.paymentsheet.ui.GooglePayDividerUi
 import com.stripe.android.ui.core.PaymentsThemeDefaults
-import com.stripe.android.ui.core.PaymentsTheme
-import com.stripe.android.ui.core.elements.Html
 import com.stripe.android.ui.core.isSystemDarkTheme
 import com.stripe.android.ui.core.shouldUseDarkDynamicColor
 import kotlinx.coroutines.launch

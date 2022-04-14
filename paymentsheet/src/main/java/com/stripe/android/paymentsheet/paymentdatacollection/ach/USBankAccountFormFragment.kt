@@ -19,10 +19,8 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -294,12 +292,11 @@ internal class USBankAccountFormFragment : Fragment() {
         last4: String?
     ) {
         val openDialog = remember { mutableStateOf(false) }
-        val bankNameIcon = mapOf(
-            "StripBank" to R.drawable.stripe_ic_bank
-        )
-        val bankIcon = bankNameIcon[bankName]
+        val bankIcon = TransformToBankIcon(bankName ?: "")
+
         Column(
-            Modifier.fillMaxWidth()) {
+            Modifier.fillMaxWidth()
+        ) {
             H6Text(
                 text = stringResource(R.string.us_bank_account_payment_sheet_bank_account),
                 modifier = Modifier.padding(vertical = 8.dp)

@@ -18,5 +18,5 @@ sealed class USBankAccountFormScreenState {
         val displayName: String?,
         val last4: String?
     ) : USBankAccountFormScreenState()
-    data class ProcessPayment(val result: PaymentResult): USBankAccountFormScreenState()
+    data class ProcessPayment(val result: PaymentResult) : USBankAccountFormScreenState()
 }

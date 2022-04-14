@@ -26,11 +26,9 @@ import com.stripe.android.paymentsheet.model.PaymentIntentClientSecret
 import com.stripe.android.paymentsheet.model.SetupIntentClientSecret
 import com.stripe.android.paymentsheet.paymentdatacollection.ach.di.DaggerUSBankAccountFormComponent
 import com.stripe.android.ui.core.elements.EmailSpec
-import com.stripe.android.ui.core.elements.IdentifierSpec
 import com.stripe.android.ui.core.elements.SectionFieldElement
 import com.stripe.android.ui.core.elements.SimpleTextSpec
 import dagger.Lazy
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -57,10 +55,10 @@ internal class USBankAccountFormViewModel @Inject internal constructor(
 
     val emailElement: SectionFieldElement = EmailSpec.transform("")
     val email: StateFlow<String> = emailElement.getFormFieldValueFlow().map { formFieldsList ->
-            // formFieldsList contains only one element, for the email. Take the second value of
-            // the pair, which is the FormFieldEntry containing the value entered by the user.
-            formFieldsList.firstOrNull()?.second?.takeIf { it.isComplete }?.value ?: ""
-        }.stateIn(viewModelScope, SharingStarted.Lazily, "")
+        // formFieldsList contains only one element, for the email. Take the second value of
+        // the pair, which is the FormFieldEntry containing the value entered by the user.
+        formFieldsList.firstOrNull()?.second?.takeIf { it.isComplete }?.value ?: ""
+    }.stateIn(viewModelScope, SharingStarted.Lazily, "")
 
     val requiredFields = name
         .map { it.isNotEmpty() }
@@ -70,7 +68,7 @@ internal class USBankAccountFormViewModel @Inject internal constructor(
             }
         ) { validName, validEmail ->
             validName && validEmail
-    }
+        }
 
     private var paymentLauncher: PaymentLauncher? = null
     private var collectBankAccountLauncher: CollectBankAccountLauncher? = null
