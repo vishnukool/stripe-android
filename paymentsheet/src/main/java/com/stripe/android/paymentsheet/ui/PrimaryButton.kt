@@ -215,10 +215,3 @@ private fun LabelUI(label: String) {
         modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 4.dp, bottom = 5.dp)
     )
 }
-
-@Parcelize
-internal data class PrimaryButtonUIState(
-    val state: @RawValue PrimaryButton.State,
-    val enabled: Boolean,
-    val onPress: () -> Unit = {}
-) : Parcelable

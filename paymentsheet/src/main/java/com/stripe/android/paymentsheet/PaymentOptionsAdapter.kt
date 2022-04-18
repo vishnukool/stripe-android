@@ -469,6 +469,10 @@ internal class PaymentOptionsAdapter(
                     R.string.bank_account_ending_in,
                     paymentMethod.sepaDebit?.last4
                 )
+                PaymentMethod.Type.USBankAccount -> {
+                    // TODO: ADD US_BANK_ACCOUNT
+                    ""
+                }
                 else -> ""
             }
 

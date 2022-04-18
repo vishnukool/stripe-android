@@ -31,7 +31,8 @@ class Settings(context: Context) {
          * Note: only necessary if not configured via `gradle.properties`.
          */
         private const val BASE_URL =
-            "https://jameswoo-stripe-paymentsheet-playground.glitch.me/"
+//            "https://jameswoo-stripe-paymentsheet-playground.glitch.me/"
+        "https://stripe-mobile-payment-sheet-test-playground-v6.glitch.me//"
 
         private const val METADATA_KEY_BACKEND_URL_KEY =
             "com.stripe.android.paymentsheet.example.metadata.backend_url"

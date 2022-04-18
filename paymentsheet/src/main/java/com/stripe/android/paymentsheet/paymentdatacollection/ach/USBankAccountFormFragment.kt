@@ -77,9 +77,6 @@ internal class USBankAccountFormFragment : Fragment() {
         )
     }
 
-    private lateinit var primaryButton: PrimaryButton
-    private lateinit var notes: ComposeView
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.registerFragment(this)
@@ -95,25 +92,22 @@ internal class USBankAccountFormFragment : Fragment() {
             ViewGroup.LayoutParams.MATCH_PARENT
         )
 
-        primaryButton = requireActivity().findViewById(R.id.buy_button)
-        notes = requireActivity().findViewById(R.id.notes)
-
         lifecycleScope.launchWhenStarted {
             viewModel.requiredFields.collect {
-                primaryButton.isEnabled = it
+                sheetViewModel.updateBuyButtonEnabled(it)
             }
         }
         lifecycleScope.launchWhenStarted {
             viewModel.currentScreenState.collect { screenState ->
                 when (screenState) {
                     is USBankAccountFormScreenState.NameAndEmailCollection -> {
-                        notes.visibility = View.GONE
-                        primaryButton.updateState(
+                        sheetViewModel.updateNotesVisible(false)
+                        sheetViewModel.updateBuyButtonState(
                             PrimaryButton.State.Ready(
                                 getString(R.string.us_bank_account_payment_sheet_primary_button_continue)
                             )
                         )
-                        primaryButton.setOnClickListener {
+                        sheetViewModel.updateBuyButtonAction {
                             viewModel.collectBankAccount(sheetViewModel.args.clientSecret)
                         }
                         setContent {
@@ -123,8 +117,8 @@ internal class USBankAccountFormFragment : Fragment() {
                         }
                     }
                     is USBankAccountFormScreenState.MandateCollection -> {
-                        notes.visibility = View.VISIBLE
-                        notes.setContent {
+                        sheetViewModel.updateNotesVisible(true)
+                        sheetViewModel.updateNotesContent {
                             Html(
                                 html = stringResource(R.string.us_bank_account_payment_sheet_mandate),
                                 imageGetter = emptyMap(),
@@ -132,9 +126,9 @@ internal class USBankAccountFormFragment : Fragment() {
                                 style = PaymentsTheme.typography.body1,
                             )
                         }
-                        primaryButton.updateState(PrimaryButton.State.Ready())
-                        primaryButton.setOnClickListener {
-                            primaryButton.updateState(PrimaryButton.State.StartProcessing)
+                        sheetViewModel.updateBuyButtonState(PrimaryButton.State.Ready())
+                        sheetViewModel.updateBuyButtonAction {
+                            sheetViewModel.updateBuyButtonState(PrimaryButton.State.StartProcessing)
                             viewModel.confirm(
                                 sheetViewModel.args.clientSecret,
                                 screenState.intentId,
@@ -153,9 +147,9 @@ internal class USBankAccountFormFragment : Fragment() {
                     }
                     is USBankAccountFormScreenState.VerifyWithMicrodeposits -> {
                         val formattedMerchantName = sheetViewModel.args.config?.merchantDisplayName?.trimEnd { it == '.' }
-                        notes.visibility = View.VISIBLE
                         formattedMerchantName?.let {
-                            notes.setContent {
+                            sheetViewModel.updateNotesVisible(true)
+                            sheetViewModel.updateNotesContent {
                                 Html(
                                     html = stringResource(
                                         R.string.us_bank_account_payment_sheet_mandate_verify_with_microdeposit,
@@ -167,13 +161,13 @@ internal class USBankAccountFormFragment : Fragment() {
                                 )
                             }
                         }
-                        primaryButton.updateState(
+                        sheetViewModel.updateBuyButtonState(
                             PrimaryButton.State.Ready(
                                 getString(R.string.us_bank_account_payment_sheet_primary_button_verify_account)
                             )
                         )
-                        primaryButton.setOnClickListener {
-                            primaryButton.updateState(PrimaryButton.State.StartProcessing)
+                        sheetViewModel.updateBuyButtonAction {
+                            sheetViewModel.updateBuyButtonState(PrimaryButton.State.StartProcessing)
                             viewModel.confirm(
                                 sheetViewModel.args.clientSecret,
                                 screenState.intentId,
@@ -198,10 +192,10 @@ internal class USBankAccountFormFragment : Fragment() {
         }
     }
 
-    override fun onDestroy() {
+    override fun onDetach() {
         viewModel.onDestroy()
         sheetViewModel.resetViewState(null)
-        super.onDestroy()
+        super.onDetach()
     }
 
     @Composable

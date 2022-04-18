@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ScrollView
 import android.widget.TextView
@@ -77,11 +78,6 @@ internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>() {
     private val linkButton by lazy { viewBinding.linkButton }
     private val topMessage by lazy { viewBinding.topMessage }
     private val googlePayDivider by lazy { viewBinding.googlePayDivider }
-
-    private val buyButtonStateObserver = { viewState: PaymentSheetViewState? ->
-        updateErrorMessage(messageView, viewState?.errorMessage)
-        viewBinding.buyButton.updateState(viewState?.convert())
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -195,6 +191,21 @@ internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>() {
         viewModel.selection.observe(this) {
             clearErrorMessages()
         }
+
+        viewModel.notesContent.observe(this) { composable ->
+            viewBinding.notes.setContent {
+                composable()
+            }
+        }
+
+        viewModel.notesVisible.observe(this) {
+            viewBinding.notes.visibility = if (it) {
+                View.VISIBLE
+            } else {
+                viewBinding.notes.removeAllViews()
+                View.GONE
+            }
+        }
     }
 
     private fun onTransitionTarget(
@@ -260,8 +271,22 @@ internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>() {
             )
         }
 
+        val buyButtonClickListener = {
+            updateErrorMessage(topMessage)
+            viewModel.checkout(CheckoutIdentifier.SheetBottomBuy)
+        }
+
         viewModel.getButtonStateObservable(CheckoutIdentifier.SheetBottomBuy)
-            .observe(this, buyButtonStateObserver)
+            .observe(this) { viewState: PaymentSheetViewState? ->
+                updateErrorMessage(messageView, viewState?.errorMessage)
+                if (viewState is PaymentSheetViewState.Reset) {
+                    viewBinding.buyButton.setOnClickListener {
+                        buyButtonClickListener()
+                    }
+                    viewBinding.buyButton.isEnabled = false
+                }
+                viewBinding.buyButton.updateState(viewState?.convert())
+            }
 
         viewBinding.buyButton.setDefaultBackGroundColor(
             viewModel.config?.primaryButtonColor ?: ColorStateList.valueOf(
@@ -271,8 +296,22 @@ internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>() {
         viewBinding.buyButton.setCornerRadius(PaymentsThemeDefaults.shapes.cornerRadius)
 
         viewBinding.buyButton.setOnClickListener {
-            updateErrorMessage(topMessage)
-            viewModel.checkout(CheckoutIdentifier.SheetBottomBuy)
+            buyButtonClickListener()
+        }
+
+        viewModel.buyButtonAction.observe(this) {
+            viewBinding.buyButton.setOnClickListener {
+                updateErrorMessage(topMessage)
+                it()
+            }
+        }
+
+        viewModel.buyButtonState.observe(this) {
+            viewBinding.buyButton.updateState(it)
+        }
+
+        viewModel.buyButtonEnabled.observe(this) {
+            viewBinding.buyButton.isEnabled = it
         }
 
         viewModel.ctaEnabled.observe(this) { isEnabled ->

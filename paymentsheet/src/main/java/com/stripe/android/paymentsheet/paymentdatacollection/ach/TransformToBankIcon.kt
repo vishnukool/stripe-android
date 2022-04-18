@@ -15,7 +15,7 @@ internal interface TransformToBankIcon {
                 Regex("PNC\\s?BANK|PNC Bank", RegexOption.IGNORE_CASE) to R.drawable.stripe_ic_bank_pnc,
                 Regex("SUNTRUST|SunTrust Bank", RegexOption.IGNORE_CASE) to R.drawable.stripe_ic_bank_suntrust,
                 Regex("Silicon Valley Bank", RegexOption.IGNORE_CASE) to R.drawable.stripe_ic_bank_svb,
-                Regex("Stripe|TestInstitution", RegexOption.IGNORE_CASE) to R.drawable.stripe_ic_bank,
+                Regex("Stripe|TestInstitution", RegexOption.IGNORE_CASE) to R.drawable.stripe_ic_bank_stripe,
                 Regex("TD Bank", RegexOption.IGNORE_CASE) to R.drawable.stripe_ic_bank_td,
                 Regex("USAA FEDERAL SAVINGS BANK|USAA Bank", RegexOption.IGNORE_CASE) to R.drawable.stripe_ic_bank_usaa,
                 Regex("U\\.?S\\. BANK|US Bank", RegexOption.IGNORE_CASE) to R.drawable.stripe_ic_bank_usbank,
