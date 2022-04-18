@@ -1,9 +1,13 @@
 package com.stripe.android.paymentsheet.paymentdatacollection.ach
 
+import androidx.annotation.StringRes
 import com.stripe.android.payments.paymentlauncher.PaymentResult
 
+
 sealed class USBankAccountFormScreenState {
-    object NameAndEmailCollection : USBankAccountFormScreenState()
+    data class NameAndEmailCollection(
+        @StringRes val error: Int? = null
+    ): USBankAccountFormScreenState()
     data class MandateCollection(
         val intentId: String,
         val linkedAccountId: String,
@@ -18,5 +22,8 @@ sealed class USBankAccountFormScreenState {
         val displayName: String?,
         val last4: String?
     ) : USBankAccountFormScreenState()
-    data class ProcessPayment(val result: PaymentResult) : USBankAccountFormScreenState()
+    data class FinishProcessing(
+        val result: PaymentResult
+    ) : USBankAccountFormScreenState()
+    object Finished : USBankAccountFormScreenState()
 }

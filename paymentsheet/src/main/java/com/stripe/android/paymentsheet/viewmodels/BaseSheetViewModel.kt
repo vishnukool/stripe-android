@@ -6,6 +6,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.NonNull
 import androidx.annotation.Nullable
 import androidx.annotation.RestrictTo
+import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -25,6 +26,7 @@ import com.stripe.android.link.injection.LinkPaymentLauncherFactory
 import com.stripe.android.model.PaymentIntent
 import com.stripe.android.model.PaymentMethod
 import com.stripe.android.model.StripeIntent
+import com.stripe.android.payments.paymentlauncher.PaymentResult
 import com.stripe.android.paymentsheet.BaseAddPaymentMethodFragment
 import com.stripe.android.paymentsheet.BasePaymentMethodsListFragment
 import com.stripe.android.paymentsheet.PaymentOptionsActivity
@@ -183,6 +185,8 @@ internal abstract class BaseSheetViewModel<TransitionTargetType>(
     abstract var newCard: PaymentSelection.New.Card?
 
     abstract fun onFatal(throwable: Throwable)
+
+    val shouldHidePrimaryButton = MutableLiveData(false)
 
     val buttonsEnabled = MediatorLiveData<Boolean>().apply {
         listOf(
@@ -393,6 +397,12 @@ internal abstract class BaseSheetViewModel<TransitionTargetType>(
     abstract fun onLinkPaymentResult(result: LinkActivityResult)
 
     abstract fun onUserCancel()
+
+    abstract fun onPaymentResult(paymentResult: PaymentResult)
+
+    abstract fun onFinish()
+
+    abstract fun onError(@StringRes error: Int? = null)
 
     /**
      * Used to set up any dependencies that require a reference to the current Activity.

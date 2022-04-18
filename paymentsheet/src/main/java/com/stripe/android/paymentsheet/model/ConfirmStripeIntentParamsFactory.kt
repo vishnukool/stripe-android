@@ -37,11 +37,10 @@ internal class ConfirmPaymentIntentParamsFactory(
             ).takeIf { paymentSelection.paymentMethod.type == PaymentMethod.Type.Card }
         )
 
-    override fun create(paymentSelection: PaymentSelection.New) =
+    override fun create(paymentSelection: PaymentSelection.New) = if (paymentSelection.paymentMethodCreateParams.typeCode != PaymentMethod.Type.USBankAccount.code)
         ConfirmPaymentIntentParams.createWithPaymentMethodCreateParams(
             paymentMethodCreateParams = paymentSelection.paymentMethodCreateParams,
             clientSecret = clientSecret.value,
-
             /**
              Sets `payment_method_options[card][setup_future_usage]`
              - Note: PaymentSheet uses this `setup_future_usage` (SFU) value very differently from the top-level one:
@@ -62,6 +61,9 @@ internal class ConfirmPaymentIntentParamsFactory(
                         PaymentMethod.Type.Card.code
                 }
             )
+        ) else ConfirmPaymentIntentParams.create(
+            clientSecret = clientSecret.value,
+            paymentMethodType = PaymentMethod.Type.USBankAccount
         )
 }
 

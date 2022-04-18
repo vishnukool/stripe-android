@@ -191,21 +191,6 @@ internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>() {
         viewModel.selection.observe(this) {
             clearErrorMessages()
         }
-
-        viewModel.notesContent.observe(this) { composable ->
-            viewBinding.notes.setContent {
-                composable()
-            }
-        }
-
-        viewModel.notesVisible.observe(this) {
-            viewBinding.notes.visibility = if (it) {
-                View.VISIBLE
-            } else {
-                viewBinding.notes.removeAllViews()
-                View.GONE
-            }
-        }
     }
 
     private fun onTransitionTarget(
@@ -295,23 +280,8 @@ internal class PaymentSheetActivity : BaseSheetActivity<PaymentSheetResult>() {
         )
         viewBinding.buyButton.setCornerRadius(PaymentsThemeDefaults.shapes.cornerRadius)
 
-        viewBinding.buyButton.setOnClickListener {
-            buyButtonClickListener()
-        }
-
-        viewModel.buyButtonAction.observe(this) {
-            viewBinding.buyButton.setOnClickListener {
-                updateErrorMessage(topMessage)
-                it()
-            }
-        }
-
-        viewModel.buyButtonState.observe(this) {
-            viewBinding.buyButton.updateState(it)
-        }
-
-        viewModel.buyButtonEnabled.observe(this) {
-            viewBinding.buyButton.isEnabled = it
+        viewModel.shouldHidePrimaryButton.observe(this) {
+            viewBinding.buttonContainer.visibility = if (it) { View.GONE } else { View.VISIBLE }
         }
 
         viewModel.ctaEnabled.observe(this) { isEnabled ->

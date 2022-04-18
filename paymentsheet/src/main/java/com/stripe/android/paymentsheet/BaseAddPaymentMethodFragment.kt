@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import com.stripe.android.core.injection.InjectorKey
 import com.stripe.android.model.CardBrand
 import com.stripe.android.model.PaymentMethod
+import com.stripe.android.model.PaymentMethodCreateParams
 import com.stripe.android.model.StripeIntent
 import com.stripe.android.paymentsheet.databinding.FragmentPaymentsheetAddPaymentMethodBinding
 import com.stripe.android.paymentsheet.forms.FormFieldValues
@@ -33,6 +34,7 @@ import com.stripe.android.paymentsheet.ui.AnimationConstants
 import com.stripe.android.paymentsheet.viewmodels.BaseSheetViewModel
 import com.stripe.android.ui.core.Amount
 import com.stripe.android.ui.core.elements.IdentifierSpec
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 internal abstract class BaseAddPaymentMethodFragment : Fragment() {
@@ -189,13 +191,15 @@ internal abstract class BaseAddPaymentMethodFragment : Fragment() {
     private fun getFragment() =
         childFragmentManager.findFragmentById(R.id.payment_method_fragment_container)
 
-    companion object {
-
-        private fun fragmentForPaymentMethod(paymentMethod: SupportedPaymentMethod) =
-            when (paymentMethod.type) {
-                PaymentMethod.Type.USBankAccount -> USBankAccountFormFragment::class.java
-                else -> ComposeFormDataCollectionFragment::class.java
+    private fun fragmentForPaymentMethod(paymentMethod: SupportedPaymentMethod) =
+        when (paymentMethod.type) {
+            PaymentMethod.Type.USBankAccount -> {
+                USBankAccountFormFragment::class.java
             }
+            else -> ComposeFormDataCollectionFragment::class.java
+        }
+
+    companion object {
 
         private val transformToPaymentMethodCreateParams = TransformToPaymentMethodCreateParams()
 

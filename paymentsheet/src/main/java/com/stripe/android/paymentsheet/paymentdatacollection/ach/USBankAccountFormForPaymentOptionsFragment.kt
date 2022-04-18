@@ -67,7 +67,7 @@ import com.stripe.android.ui.core.isSystemDarkTheme
 /**
  * Fragment that displays a form for us_bank_account payment data collection
  */
-internal class USBankAccountFormFragment : Fragment() {
+internal class USBankAccountFormForPaymentOptionsFragment : Fragment() {
 
     private val formArgs by lazy {
         requireNotNull(
@@ -77,13 +77,8 @@ internal class USBankAccountFormFragment : Fragment() {
         )
     }
 
-    private val isPaymentSheet by lazy {
-        requireActivity() is PaymentSheetActivity
-    }
-
     private val sheetViewModel by lazy {
-        (requireActivity() as? PaymentSheetActivity)?.viewModel ?:
-            (requireActivity() as? PaymentOptionsActivity)?.viewModel
+        (requireActivity() as? PaymentOptionsActivity)?.viewModel
     }
 
     private val clientSecret by lazy {
@@ -97,7 +92,7 @@ internal class USBankAccountFormFragment : Fragment() {
     val viewModel by viewModels<USBankAccountFormViewModel> {
         USBankAccountFormViewModel.Factory(
             { requireActivity().application },
-            { USBankAccountFormViewModel.Args(formArgs, isPaymentSheet) },
+            { USBankAccountFormViewModel.Args(formArgs, false) },
             this
         )
     }
@@ -188,7 +183,7 @@ internal class USBankAccountFormFragment : Fragment() {
 
     @Composable
     private fun NameAndEmailCollectionScreen(@StringRes error: Int? = null) {
-        Column(Modifier.fillMaxWidth().padding(bottom = if (!isPaymentSheet) 30.dp else 0.dp)) {
+        Column(Modifier.fillMaxWidth().padding(bottom = 30.dp)) {
             NameAndEmailForm()
             error?.let {
                 sheetViewModel?.onError(error)
@@ -211,16 +206,13 @@ internal class USBankAccountFormFragment : Fragment() {
         intentId: String,
         linkedAccountId: String,
     ) {
-        Column(Modifier.fillMaxWidth().padding(bottom = if (!isPaymentSheet) 30.dp else 0.dp)) {
+        Column(Modifier.fillMaxWidth().padding(bottom = 30.dp)) {
             NameAndEmailForm()
             AccountDetailsForm(bankName, displayName, last4)
             PrimaryButton(
                 onClick = {
                     clientSecret?.let {
-                        viewModel.attach(it, intentId, linkedAccountId, !isPaymentSheet)
-                        if (isPaymentSheet) {
-                            viewModel.confirm(it)
-                        }
+                        viewModel.attach(it, intentId, linkedAccountId, true)
                     }
                 }
             )
@@ -237,16 +229,13 @@ internal class USBankAccountFormFragment : Fragment() {
         linkedAccountId: String,
         formattedMerchantName: String
     ) {
-        Column(Modifier.fillMaxWidth().padding(bottom = if (!isPaymentSheet) 30.dp else 0.dp)) {
+        Column(Modifier.fillMaxWidth().padding(bottom = 30.dp)) {
             NameAndEmailForm()
             AccountDetailsForm(bankName, displayName, last4)
             PrimaryButton(
                 onClick = {
                     clientSecret?.let {
-                        viewModel.attach(it, intentId, linkedAccountId, !isPaymentSheet)
-                        if (isPaymentSheet) {
-                            viewModel.confirm(it)
-                        }
+                        viewModel.attach(it, intentId, linkedAccountId, true)
                     }
                 }
             )
@@ -424,16 +413,9 @@ internal class USBankAccountFormFragment : Fragment() {
                 PrimaryButton(context).apply {
                     layoutParams = ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        if (isPaymentSheet) {
-                            context.resources.getDimensionPixelSize(R.dimen.stripe_paymentsheet_primary_button_height)
-                        } else {
-                            ViewGroup.LayoutParams.WRAP_CONTENT
-                        }
+                        ViewGroup.LayoutParams.WRAP_CONTENT
                     )
-
-                    if (!isPaymentSheet) {
-                        setLabel(getString(R.string.stripe_paymentsheet_continue_button_label))
-                    }
+                    setLabel(getString(R.string.stripe_paymentsheet_continue_button_label))
 
                     setCornerRadius(PaymentsThemeDefaults.shapes.cornerRadius)
                     setDefaultBackGroundColor(
@@ -447,7 +429,7 @@ internal class USBankAccountFormFragment : Fragment() {
                         onClick()
                     }
                     isEnabled = enabled.value
-                    lockVisible = isPaymentSheet
+                    lockVisible = false
                 }
             },
             update = { primaryButton ->

@@ -85,6 +85,7 @@
 
                 <!-- Needed to avoid animating layout changes when showing/hiding the button -->
                 <FrameLayout
+                    android:id="@+id/button_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 

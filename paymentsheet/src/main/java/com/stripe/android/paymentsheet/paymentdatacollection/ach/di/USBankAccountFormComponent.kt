@@ -28,6 +28,9 @@ internal interface USBankAccountFormComponent {
         @BindsInstance
         fun application(application: Application): Builder
 
+        @BindsInstance
+        fun configuration(configuration: USBankAccountFormViewModel.Args): Builder
+
         fun build(): USBankAccountFormComponent
     }
 }

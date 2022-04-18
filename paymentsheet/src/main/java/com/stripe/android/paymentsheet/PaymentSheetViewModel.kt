@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.IntegerRes
+import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
@@ -127,31 +128,6 @@ internal class PaymentSheetViewModel @Inject internal constructor(
     @VisibleForTesting
     internal val _contentVisible = MutableLiveData(true)
     internal val contentVisible: LiveData<Boolean> = _contentVisible.distinctUntilChanged()
-
-    @VisibleForTesting
-    internal val _buyButtonAction = MutableLiveData<() -> Unit>()
-    internal val buyButtonAction: LiveData<() -> Unit>
-        get() = _buyButtonAction
-
-    @VisibleForTesting
-    internal val _buyButtonState = MutableLiveData<PrimaryButton.State>()
-    internal val buyButtonState: LiveData<PrimaryButton.State>
-        get() = _buyButtonState
-
-    @VisibleForTesting
-    internal val _buyButtonEnabled = MutableLiveData<Boolean>()
-    internal val buyButtonEnabled: LiveData<Boolean>
-        get() = _buyButtonEnabled
-
-    @VisibleForTesting
-    internal val _notesContent = MutableLiveData<@Composable () -> Unit>()
-    internal val notesContent: LiveData<@Composable () -> Unit>
-        get() = _notesContent
-
-    @VisibleForTesting
-    internal val _notesVisible = MutableLiveData<Boolean>()
-    internal val notesVisible: LiveData<Boolean>
-        get() = _notesVisible
 
     internal var checkoutIdentifier: CheckoutIdentifier = CheckoutIdentifier.SheetBottomBuy
     internal fun getButtonStateObservable(
@@ -320,27 +296,7 @@ internal class PaymentSheetViewModel @Inject internal constructor(
         }
     }
 
-    fun updateBuyButtonAction(action: () -> Unit) {
-        _buyButtonAction.postValue(action)
-    }
-
-    fun updateBuyButtonState(state: PrimaryButton.State) {
-        _buyButtonState.postValue(state)
-    }
-
-    fun updateBuyButtonEnabled(enabled: Boolean) {
-        _buyButtonEnabled.postValue(enabled)
-    }
-
-    fun updateNotesContent(content: @Composable () -> Unit) {
-        _notesContent.postValue(content)
-    }
-
-    fun updateNotesVisible(visible: Boolean) {
-        _notesVisible.postValue(visible)
-    }
-
-    fun resetViewState(@IntegerRes stringResId: Int?) {
+    private fun resetViewState(@IntegerRes stringResId: Int?) {
         resetViewState(
             stringResId?.let { getApplication<Application>().resources.getString(it) }
         )
@@ -453,7 +409,7 @@ internal class PaymentSheetViewModel @Inject internal constructor(
             is LinkActivityResult.Failed -> PaymentResult.Failed(error)
         }
 
-    fun onPaymentResult(paymentResult: PaymentResult) {
+    override fun onPaymentResult(paymentResult: PaymentResult) {
         viewModelScope.launch {
             runCatching {
                 stripeIntentRepository.get(args.clientSecret)
@@ -535,6 +491,14 @@ internal class PaymentSheetViewModel @Inject internal constructor(
 
     override fun onUserCancel() {
         _paymentSheetResult.value = PaymentSheetResult.Canceled
+    }
+
+    override fun onFinish() {
+        _paymentSheetResult.value = PaymentSheetResult.Completed
+    }
+
+    override fun onError(@IntegerRes error: Int?) {
+        resetViewState(error)
     }
 
     internal sealed class TransitionTarget {
