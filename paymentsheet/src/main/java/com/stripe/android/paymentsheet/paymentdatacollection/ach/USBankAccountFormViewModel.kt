@@ -188,8 +188,7 @@ internal class USBankAccountFormViewModel @Inject internal constructor(
     fun attach(
         clientSecret: ClientSecret,
         intentId: String,
-        linkedAccountId: String,
-        isTerminal: Boolean
+        linkedAccountId: String
     ) {
         viewModelScope.launch {
             when (clientSecret) {
@@ -216,7 +215,7 @@ internal class USBankAccountFormViewModel @Inject internal constructor(
                     )
                 }
             }
-            if (isTerminal) {
+            if (args.isPaymentSheet) {
                 _currentScreenState.tryEmit(USBankAccountFormScreenState.Finished)
             }
         }

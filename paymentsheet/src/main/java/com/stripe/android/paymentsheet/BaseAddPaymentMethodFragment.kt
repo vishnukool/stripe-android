@@ -29,6 +29,8 @@ import com.stripe.android.paymentsheet.model.SupportedPaymentMethod
 import com.stripe.android.paymentsheet.paymentdatacollection.ComposeFormDataCollectionFragment
 import com.stripe.android.paymentsheet.paymentdatacollection.FormFragmentArguments
 import com.stripe.android.paymentsheet.paymentdatacollection.TransformToPaymentMethodCreateParams
+import com.stripe.android.paymentsheet.paymentdatacollection.ach.USBankAccountFormForPaymentOptionsFragment
+import com.stripe.android.paymentsheet.paymentdatacollection.ach.USBankAccountFormForPaymentSheetFragment
 import com.stripe.android.paymentsheet.paymentdatacollection.ach.USBankAccountFormFragment
 import com.stripe.android.paymentsheet.ui.AnimationConstants
 import com.stripe.android.paymentsheet.viewmodels.BaseSheetViewModel
@@ -194,7 +196,11 @@ internal abstract class BaseAddPaymentMethodFragment : Fragment() {
     private fun fragmentForPaymentMethod(paymentMethod: SupportedPaymentMethod) =
         when (paymentMethod.type) {
             PaymentMethod.Type.USBankAccount -> {
-                USBankAccountFormFragment::class.java
+                if (sheetViewModel is PaymentSheetViewModel) {
+                    USBankAccountFormForPaymentSheetFragment::class.java
+                } else {
+                    USBankAccountFormForPaymentOptionsFragment::class.java
+                }
             }
             else -> ComposeFormDataCollectionFragment::class.java
         }

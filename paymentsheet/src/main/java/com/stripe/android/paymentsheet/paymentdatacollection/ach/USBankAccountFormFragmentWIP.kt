@@ -32,7 +32,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
@@ -46,7 +45,6 @@ import com.stripe.android.payments.bankaccount.navigation.CollectBankAccountResu
 import com.stripe.android.payments.paymentlauncher.PaymentResult
 import com.stripe.android.paymentsheet.PaymentOptionsActivity
 import com.stripe.android.paymentsheet.PaymentSheetActivity
-import com.stripe.android.paymentsheet.PaymentSheetViewModel
 import com.stripe.android.paymentsheet.R
 import com.stripe.android.paymentsheet.model.ClientSecret
 import com.stripe.android.paymentsheet.model.PaymentIntentClientSecret
@@ -55,7 +53,6 @@ import com.stripe.android.paymentsheet.model.SetupIntentClientSecret
 import com.stripe.android.paymentsheet.paymentdatacollection.ComposeFormDataCollectionFragment
 import com.stripe.android.paymentsheet.paymentdatacollection.FormFragmentArguments
 import com.stripe.android.paymentsheet.ui.PrimaryButton
-import com.stripe.android.paymentsheet.viewmodels.BaseSheetViewModel
 import com.stripe.android.ui.core.PaymentsTheme
 import com.stripe.android.ui.core.PaymentsThemeDefaults
 import com.stripe.android.ui.core.elements.H6Text
@@ -70,7 +67,7 @@ import com.stripe.android.ui.core.isSystemDarkTheme
 /**
  * Fragment that displays a form for us_bank_account payment data collection
  */
-internal abstract class USBankAccountFormFragment : Fragment() {
+internal class USBankAccountFormFragmentWIP : Fragment() {
 
     private val formArgs by lazy {
         requireNotNull(
@@ -80,9 +77,16 @@ internal abstract class USBankAccountFormFragment : Fragment() {
         )
     }
 
-    abstract val sheetViewModel: BaseSheetViewModel<*>?
+    private val isPaymentSheet by lazy {
+        requireActivity() is PaymentSheetActivity
+    }
 
-    protected val clientSecret by lazy {
+    private val sheetViewModel by lazy {
+        (requireActivity() as? PaymentSheetActivity)?.viewModel ?:
+            (requireActivity() as? PaymentOptionsActivity)?.viewModel
+    }
+
+    private val clientSecret by lazy {
         when (val intent = sheetViewModel?.stripeIntent?.value) {
             is PaymentIntent -> PaymentIntentClientSecret(intent.clientSecret!!)
             is SetupIntent -> SetupIntentClientSecret(intent.clientSecret!!)
@@ -90,10 +94,10 @@ internal abstract class USBankAccountFormFragment : Fragment() {
         }
     }
 
-    protected val viewModel by viewModels<USBankAccountFormViewModel> {
+    val viewModel by viewModels<USBankAccountFormViewModel> {
         USBankAccountFormViewModel.Factory(
             { requireActivity().application },
-            { USBankAccountFormViewModel.Args(formArgs, sheetViewModel is PaymentSheetViewModel) },
+            { USBankAccountFormViewModel.Args(formArgs, isPaymentSheet) },
             this
         )
     }
@@ -182,11 +186,9 @@ internal abstract class USBankAccountFormFragment : Fragment() {
         super.onDetach()
     }
 
-    abstract val bottomPadding: Dp
-
     @Composable
     private fun NameAndEmailCollectionScreen(@StringRes error: Int? = null) {
-        Column(Modifier.fillMaxWidth().padding(bottom = bottomPadding)) {
+        Column(Modifier.fillMaxWidth().padding(bottom = if (!isPaymentSheet) 30.dp else 0.dp)) {
             NameAndEmailForm()
             error?.let {
                 sheetViewModel?.onError(error)
@@ -201,8 +203,6 @@ internal abstract class USBankAccountFormFragment : Fragment() {
         }
     }
 
-    abstract fun mandateCollectionOnClick(intentId: String, linkedAccountId: String)
-
     @Composable
     private fun MandateCollectionScreen(
         bankName: String?,
@@ -211,19 +211,22 @@ internal abstract class USBankAccountFormFragment : Fragment() {
         intentId: String,
         linkedAccountId: String,
     ) {
-        Column(Modifier.fillMaxWidth().padding(bottom = bottomPadding)) {
+        Column(Modifier.fillMaxWidth().padding(bottom = if (!isPaymentSheet) 30.dp else 0.dp)) {
             NameAndEmailForm()
             AccountDetailsForm(bankName, displayName, last4)
             PrimaryButton(
                 onClick = {
-                    mandateCollectionOnClick(intentId, linkedAccountId)
+                    clientSecret?.let {
+                        viewModel.attach(it, intentId, linkedAccountId)
+                        if (isPaymentSheet) {
+                            viewModel.confirm(it)
+                        }
+                    }
                 }
             )
             VerifiedMandate()
         }
     }
-
-    abstract fun verifyWithMicrodepositsOnClick(intentId: String, linkedAccountId: String)
 
     @Composable
     private fun VerifyWithMicrodepositsScreen(
@@ -234,12 +237,17 @@ internal abstract class USBankAccountFormFragment : Fragment() {
         linkedAccountId: String,
         formattedMerchantName: String
     ) {
-        Column(Modifier.fillMaxWidth().padding(bottom = bottomPadding)) {
+        Column(Modifier.fillMaxWidth().padding(bottom = if (!isPaymentSheet) 30.dp else 0.dp)) {
             NameAndEmailForm()
             AccountDetailsForm(bankName, displayName, last4)
             PrimaryButton(
                 onClick = {
-                    verifyWithMicrodepositsOnClick(intentId, linkedAccountId)
+                    clientSecret?.let {
+                        viewModel.attach(it, intentId, linkedAccountId)
+                        if (isPaymentSheet) {
+                            viewModel.confirm(it)
+                        }
+                    }
                 }
             )
             VerifyWithMicrodespoitsMandate(formattedMerchantName = formattedMerchantName)
@@ -398,12 +406,6 @@ internal abstract class USBankAccountFormFragment : Fragment() {
         )
     }
 
-    abstract val primaryButtonHeight: Int
-    abstract val primaryButtonTopPadding: Dp
-    abstract val primaryButtonBottomPadding: Dp
-    abstract val labelProvider: (PrimaryButton) -> Unit
-    abstract val lockVisible: Boolean
-
     @Composable
     private fun PrimaryButton(
         onClick: () -> Unit,
@@ -415,17 +417,23 @@ internal abstract class USBankAccountFormFragment : Fragment() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    top = primaryButtonTopPadding,
-                    bottom = primaryButtonBottomPadding
+                    top = 12.dp,
+                    bottom = 4.dp
                 ),
             factory = { context ->
                 PrimaryButton(context).apply {
                     layoutParams = ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        primaryButtonHeight
+                        if (isPaymentSheet) {
+                            context.resources.getDimensionPixelSize(R.dimen.stripe_paymentsheet_primary_button_height)
+                        } else {
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        }
                     )
 
-                    labelProvider(this)
+                    if (!isPaymentSheet) {
+                        setLabel(getString(R.string.stripe_paymentsheet_continue_button_label))
+                    }
 
                     setCornerRadius(PaymentsThemeDefaults.shapes.cornerRadius)
                     setDefaultBackGroundColor(
@@ -439,7 +447,7 @@ internal abstract class USBankAccountFormFragment : Fragment() {
                         onClick()
                     }
                     isEnabled = enabled.value
-                    lockVisible = this@USBankAccountFormFragment.lockVisible
+                    lockVisible = isPaymentSheet
                 }
             },
             update = { primaryButton ->
