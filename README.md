@@ -13,6 +13,7 @@ Get started with our [📚 integration guides](https://stripe.com/docs/payments/
 > Updating to a newer version of the SDK? See our [migration guide](https://github.com/stripe/stripe-android/blob/master/MIGRATING.md) and [changelog](https://github.com/stripe/stripe-android/blob/master/CHANGELOG.md).
 
 
+
 Table of contents
 =================
 
